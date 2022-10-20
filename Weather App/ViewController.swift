@@ -6,14 +6,44 @@
 //
 
 import UIKit
+import Combine
+import SnapKit
+import Alamofire
 
 class ViewController: UIViewController {
+
+    private lazy var dataSource: DataSource = {
+        let monitor = ClosureEventMonitor()
+        monitor.requestDidCompleteTaskWithError = { (request, _, _) in
+            debugPrint(request)
+
+        }
+        monitor.dataTaskDidReceiveData = { (_, _, data) in
+            debugPrint(String(data: data, encoding: .utf8)!)
+        }
+
+        let session = Alamofire.Session(configuration: .default,
+                                        eventMonitors: [monitor])
+        let dataSource = OpenWeatherDataSource(session: session, apiKey: "a8e5bcdb61bbbb92a1aff8df862d2668")
+        return dataSource
+    }()
+
+    private lazy var viewModel: ForecastOverviewViewModel = {
+       return WeatherOverviewViewModelImpl(location: Location(name: "Home", latitude: 39.7331297, longitude: -104.9542389), dataSource: dataSource)
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+
+        let viewController = ForecastOverviewViewController(viewModel: viewModel)
+
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(viewController.view)
+        addChild(viewController)
+        viewController.view.snp.makeConstraints { make in
+            make.edges.equalTo(self.view)
+        }
     }
 
-
 }
-
