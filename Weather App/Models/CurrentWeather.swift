@@ -21,4 +21,5 @@ struct CurrentWeather: Equatable {
     let humidity: Int
     let pressure: Int
     let location: Location
+    let time: Date
 }

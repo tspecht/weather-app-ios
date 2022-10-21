@@ -38,7 +38,6 @@ class ViewController: UIViewController {
 
         let viewController = ForecastOverviewViewController(viewModel: viewModel)
 
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(viewController.view)
         addChild(viewController)
         viewController.view.snp.makeConstraints { make in

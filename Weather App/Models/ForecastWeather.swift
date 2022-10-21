@@ -31,4 +31,5 @@ struct ForecastWeather: Equatable {
 
     let humidity: Int
     let pressure: Int
+    let time: Date
 }

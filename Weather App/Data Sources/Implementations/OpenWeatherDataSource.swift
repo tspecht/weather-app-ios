@@ -106,6 +106,7 @@ private struct OpenWeatherCurrentWeatherResponse: Codable {
     let wind: Wind
     let rain: Rain?
     let clouds: Clouds
+    let dt: Double
 }
 
 class OpenWeatherDataSource: DataSource {
@@ -216,7 +217,8 @@ class OpenWeatherDataSource: DataSource {
                                       rain: currentRain,
                                       humidity: result.main.humidity,
                                       pressure: result.main.pressure,
-                                      location: location)
+                                      location: location,
+                                      time: Date(timeIntervalSince1970: result.dt))
             }
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
