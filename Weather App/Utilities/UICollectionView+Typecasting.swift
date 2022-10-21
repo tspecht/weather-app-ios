@@ -15,4 +15,8 @@ extension UICollectionView {
         }
         return cell
     }
+
+    func register<T: Reusable & UICollectionViewCell>(_ cellType: T.Type) {
+        register(cellType.self, forCellWithReuseIdentifier: cellType.reuseIdentifier)
+    }
 }

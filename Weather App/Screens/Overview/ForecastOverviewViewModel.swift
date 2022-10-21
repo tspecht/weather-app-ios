@@ -22,14 +22,14 @@ struct ForecastOverview {
 
     enum Item: Hashable {
         case current(CurrentWeather)
-        case daily([ForecastWeather])
+        case daily(DayForecast)
 
         func hash(into hasher: inout Hasher) {
             switch self {
             case .current(let currentWeather):
                 hasher.combine(currentWeather.time)
-            case .daily(let forecasts):
-                hasher.combine(forecasts.map({ "\($0.time.timeIntervalSince1970)" }).reduce("", +))
+            case .daily(let forecast):
+                hasher.combine(forecast.date)
             }
         }
     }
@@ -49,6 +49,12 @@ class WeatherOverviewViewModelImpl: ForecastOverviewViewModel {
             updateSnapshot()
         }
     }
+    private var dailyForecasts: [DayForecast]? {
+        didSet {
+            updateSnapshot()
+        }
+    }
+
     private let dataSource: DataSource
     private let location: Location
     private var cancellables = Set<AnyCancellable>()
@@ -64,6 +70,11 @@ class WeatherOverviewViewModelImpl: ForecastOverviewViewModel {
         if let currentWeather = currentWeather {
             snapshot.appendSections([.current])
             snapshot.appendItems([.current(currentWeather)], toSection: .current)
+        }
+
+        if let dailyForecasts = dailyForecasts {
+            snapshot.appendSections([.dailyForecast])
+            snapshot.appendItems(dailyForecasts.map { .daily($0) }, toSection: .dailyForecast)
         }
 
         dataUpdated.send(snapshot)
@@ -87,12 +98,18 @@ class WeatherOverviewViewModelImpl: ForecastOverviewViewModel {
     }
 
     func loadDailyForecast() {
-//        dataSource.forecast(for: location)
-//            .sink { [weak self] result in
-//                // TODO: Propagate error
-//            } receiveValue: { <#Forecast#> in
-//                <#code#>
-//            }
-
+        dataSource.dailyForecast(for: location)
+            .sink { [weak self] result in
+                switch result {
+                case .failure(let error):
+                    // TODO: There has to be a better way to propagate this error
+                    self?.dailyForecasts = nil
+                default:
+                    break
+                }
+            } receiveValue: { [weak self] forecasts in
+                self?.dailyForecasts = forecasts
+            }
+            .store(in: &cancellables)
     }
 }

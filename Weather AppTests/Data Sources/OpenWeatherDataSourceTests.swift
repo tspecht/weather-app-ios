@@ -47,7 +47,7 @@ class OpenWeatherDataSourceTests: XCTestCase {
         ])
         mock.register()
 
-        let forecast = try awaitPublisherResult(dataSource.forecast(for: location))
+        let forecast = try awaitPublisherResult(dataSource.dailyForecast(for: location))
 
         let expectedCurrentWeather = CurrentWeather(temperature: CurrentWeather.Temperature(current: 298.48,
                                                                                             feelsLike: 298.74),

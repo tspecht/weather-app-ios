@@ -10,9 +10,6 @@ import SnapKit
 
 // TODO: Does this need it's own view model?
 class CurrentWeatherCell: UICollectionViewCell, Reusable {
-
-    static let reuseIdentifier = "CurrentWeatherCell"
-
     lazy var locationLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black

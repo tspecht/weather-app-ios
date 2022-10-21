@@ -26,8 +26,15 @@ class ForecastOverviewViewController: UIViewController {
                 cell.feelsLikeLabel.text = "Feels like \(currentWeather.temperature.feelsLike)°"
                 cell.locationLabel.text = currentWeather.location.name
                 return cell
-            default:
-                return nil
+            case .daily(let forecast):
+                let cell: ForecastCell = collectionView.dequeueReusableCell(for: indexPath)
+                cell.temperatureLabel.text = "\(forecast.maxTemperature ?? 0)°"
+
+                // TODO: This needs to move somewhere else
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "EE"
+                cell.dateLabel.text = dateFormatter.string(from: forecast.date)
+                return cell
             }
         }
         return dataSource
@@ -78,7 +85,8 @@ private extension ForecastOverviewViewController {
 
         collectionView.delegate = self
         collectionView.dataSource = diffableDataSource
-        collectionView.register(CurrentWeatherCell.self, forCellWithReuseIdentifier: CurrentWeatherCell.reuseIdentifier)
+        collectionView.register(CurrentWeatherCell.self)
+        collectionView.register(ForecastCell.self)
 
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints { make in
@@ -87,12 +95,24 @@ private extension ForecastOverviewViewController {
     }
 }
 
+// TODO: THe below is super ugly, has to be possible to do this nicer
 // MARK: - UICollectionViewDelegateFlowLayout
 extension ForecastOverviewViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        switch indexPath.section {
-        case 0:
-            return CGSize(width: UIScreen.main.bounds.size.width, height: 150)
+        switch ForecastOverview.Section(rawValue: indexPath.section) {
+        case .current:
+            return CGSize(width: collectionView.bounds.size.width, height: 150)
+        case .dailyForecast:
+            return CGSize(width: collectionView.bounds.size.width - 2 * 32, height: 150)
+        case .none:
+            return .zero
+        }
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        switch ForecastOverview.Section(rawValue: section) {
+        case .dailyForecast:
+            return UIEdgeInsets(top: 0, left: 32, bottom: 8, right: 32)
         default:
             return .zero
         }

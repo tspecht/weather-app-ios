@@ -17,5 +17,5 @@ enum DataSourceError: Error {
 protocol DataSource {
     init(session: Alamofire.Session, apiKey: String)
     func currentWeather(for location: Location) -> AnyPublisher<CurrentWeather, DataSourceError>
-    func forecast(for location: Location) -> AnyPublisher<Forecast, DataSourceError>
+    func dailyForecast(for location: Location) -> AnyPublisher<[DayForecast], DataSourceError>
 }

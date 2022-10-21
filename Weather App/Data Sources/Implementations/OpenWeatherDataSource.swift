@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import Alamofire
 
+// TODO: Move all of these to a separate file
 private struct OpenWeatherV3Response: Codable {
     struct CurrentWeather: Codable {
         enum CodingKeys: String, CodingKey {
@@ -73,40 +74,47 @@ private struct OpenWeatherV3Response: Codable {
     let daily: [OpenWeatherV3Response.DailyWeather]
 }
 
-private struct OpenWeatherCurrentWeatherResponse: Codable {
-    struct Main: Codable {
-        enum CodingKeys: String, CodingKey {
-            case temp, feelsLike = "feels_like", humidity, pressure
-        }
-
-        let temp: Float
-        let feelsLike: Float
-        let humidity: Int
-        let pressure: Int
+private struct OpenWeatherMainResponse: Codable {
+    enum CodingKeys: String, CodingKey {
+        case temp, tempMin = "temp_min", tempMax = "temp_max", feelsLike = "feels_like", humidity, pressure
     }
 
-    struct Wind: Codable {
-        let speed: Float
-        let gust: Float?
-        let deg: Int
-    }
+    let temp: Float
+    let tempMin: Float?
+    let tempMax: Float?
+    let feelsLike: Float
+    let humidity: Int
+    let pressure: Int
+}
 
-    struct Rain: Codable {
-        enum CodingKeys: String, CodingKey {
-            case perHour = "1h"
-        }
-        let perHour: Float
-    }
+private struct OpenWeatherWindResponse: Codable {
+    let speed: Float
+    let gust: Float?
+    let deg: Int
+}
 
-    struct Clouds: Codable {
-        let all: Float
+private struct OpenWeatherRainResponse: Codable {
+    enum CodingKeys: String, CodingKey {
+        case perHour = "1h", perThreeHours = "3h"
     }
+    let perHour: Float?
+    let perThreeHours: Float?
+}
 
-    let main: Main
-    let wind: Wind
-    let rain: Rain?
-    let clouds: Clouds
+private struct OpenWeatherCloudsResponse: Codable {
+    let all: Float
+}
+
+private struct OpenWeatherWeatherResponse: Codable {
+    let main: OpenWeatherMainResponse
+    let wind: OpenWeatherWindResponse
+    let rain: OpenWeatherRainResponse?
+    let clouds: OpenWeatherCloudsResponse
     let dt: Double
+}
+
+private struct OpenWeatherDailyForecastResponse: Codable {
+    let list: [OpenWeatherWeatherResponse]
 }
 
 class OpenWeatherDataSource: DataSource {
@@ -118,73 +126,69 @@ class OpenWeatherDataSource: DataSource {
         self.apiKey = apiKey
     }
 
-    func forecast(for location: Location) -> AnyPublisher<Forecast, DataSourceError> {
-        // TODO: Long-term we want to either call two APIs and merge them into one forecast, call v3 or just change it all together. For now, we simply return an empty list for the daily forecast
-        return currentWeather(for: location)
-            .map { Forecast(location: location, current: $0, daily: []) }
+    func dailyForecast(for location: Location) -> AnyPublisher<[DayForecast], DataSourceError> {
+        // TODO: See if we can use some form of URL transformer here to always append the appId in code instead of building it as a string
+        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/forecast?lat=\(location.latitude)&lon=\(location.longitude)&appid=\(apiKey)&units=metric&exclude=hourly,minutely") else {
+            return Fail(error: .cantConstructRequest).eraseToAnyPublisher()
+        }
+        return session.request(url, method: .get)
+            .validate()
+            .publishDecodable(type: OpenWeatherDailyForecastResponse.self)
+            .value()
+            .mapError { error in
+                return DataSourceError.networkError(underlyingError: error)
+            }
+            .map { result in
+
+                // Convert all the data at first
+                let forecastWeathers = result.list.compactMap { response -> ForecastWeather? in
+                    // TODO: This whole mapping voodoo could be moved via a protocol to the API struct defined above
+                    guard let tempMin = response.main.tempMin,
+                          let tempMax = response.main.tempMax else {
+                        return nil
+                    }
+                    let rain: Rain?
+                    if let openWeatherRain = response.rain,
+                       let perThreeHours = openWeatherRain.perThreeHours {
+                        rain = Rain(hourly: perThreeHours)  // TODO: This isn't correct
+                    } else {
+                        rain = nil
+                    }
+                    return ForecastWeather(temperature: ForecastWeather.Temperature(min: tempMin,
+                                                                                    max: tempMax,
+                                                                                    feelsLike: response.main.feelsLike,
+                                                                                    average: response.main.temp),
+                                           wind: Wind(speed: response.wind.speed,
+                                                      gusts: response.wind.gust,
+                                                      direction: response.wind.deg),
+                                           clouds: Clouds(coverage: response.clouds.all),
+                                           rain: rain,
+                                           humidity: response.main.humidity,
+                                           pressure: response.main.pressure,
+                                           time: Date(timeIntervalSince1970: response.dt))
+                }
+
+                // Group by date next
+                let calendar = Calendar.current
+                let groupedByDate: [Date: [ForecastWeather]] = forecastWeathers.reduce([:]) { partialResult, forecastWeather in
+                    var partialResult = partialResult
+                    let dateComponents = calendar.dateComponents([.day, .month, .year], from: forecastWeather.time)
+                    if let date = calendar.date(from: dateComponents) {
+                        partialResult[date, default: []].append(forecastWeather)
+                    }
+                    return partialResult
+                }
+
+                // Build the final DayForecast objects
+                return groupedByDate.reduce([]) { partialResult, item in
+                    let (key, value) = item
+                    var partialResult = partialResult
+                    partialResult.append(DayForecast(date: key, forecasts: value))
+                    return partialResult
+                }.sorted()
+            }
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
-//        // TODO: See if we can use some form of URL transformer here to always append the appId in code instead of building it as a string
-//        guard let url = URL(string: "https://api.openweathermap.org/data/3.0/onecall?lat=\(location.latitude)&lon=\(location.longitude)&appid=\(apiKey)&units=metric&exclude=hourly,minutely") else {
-//            return Fail(error: .cantConstructRequest).eraseToAnyPublisher()
-//        }
-//        return session.request(url, method: .get)
-//            .validate()
-//            .publishDecodable(type: OpenWeatherV3Response.self)
-//            .value()
-//            .mapError { error in
-//                return DataSourceError.networkError(underlyingError: error)
-//            }
-//            .map { result in
-//                // TODO: This whole mapping voodoo could be moved via a protocol to the API struct defined above
-//                let currentRain: Rain?
-//                if let openWeatherRain = result.current.rain {
-//                    currentRain = Rain(hourly: openWeatherRain.perHour)
-//                } else {
-//                    currentRain = nil
-//                }
-//
-//                let currentWeather = CurrentWeather(temperature: CurrentWeather.Temperature(current: result.current.temp,
-//                                                                              feelsLike: result.current.feelsLike),
-//                                             wind: Wind(speed: result.current.windSpeed,
-//                                                                gusts: result.current.windGust,
-//                                                                direction: result.current.windDeg),
-//                                             clouds: Clouds(coverage: result.current.clouds),
-//                                             rain: currentRain,
-//                                             humidity: result.current.humidity,
-//                                             pressure: result.current.pressure)
-//                let dailyWeather = result.daily.map {
-//                    // TODO: This isn't a great abstraction yet as it loses precision for the different temperature values
-//                    let forecastRain: Rain?
-//                    if let openWeatherRain = $0.rain {
-//                        forecastRain = Rain(hourly: openWeatherRain.perHour)
-//                    } else {
-//                        forecastRain = nil
-//                    }
-//                    return ForecastWeather(temperature: ForecastWeather.Temperature(min: $0.temp.min,
-//                                                                                    max: $0.temp.max,
-//                                                                                    morning: $0.temp.morn,
-//                                                                                    day: $0.temp.day,
-//                                                                                    evening: $0.temp.eve,
-//                                                                                    night: $0.temp.night),
-//                                           feelsLike: ForecastWeather.FeelsLike(morning: $0.feelsLike.morn,
-//                                                                                day: $0.feelsLike.day,
-//                                                                                evening: $0.feelsLike.eve,
-//                                                                                night: $0.feelsLike.night),
-//                                           wind: Wind(speed: $0.windSpeed,
-//                                                      gusts: $0.windGust,
-//                                                      direction: $0.windDeg),
-//                                           clouds: Clouds(coverage: $0.clouds),
-//                                           rain: forecastRain,
-//                                           humidity: $0.humidity,
-//                                           pressure: $0.pressure)
-//
-//                }
-//                return Forecast(location: location,
-//                                current: currentWeather,
-//                                daily: dailyWeather)
-//            }
-//            .receive(on: DispatchQueue.main)
-//            .eraseToAnyPublisher()
     }
 
     func currentWeather(for location: Location) -> AnyPublisher<CurrentWeather, DataSourceError> {
@@ -194,7 +198,7 @@ class OpenWeatherDataSource: DataSource {
         }
         return session.request(url, method: .get)
             .validate()
-            .publishDecodable(type: OpenWeatherCurrentWeatherResponse.self)
+            .publishDecodable(type: OpenWeatherWeatherResponse.self)
             .value()
             .mapError { error in
                 return DataSourceError.networkError(underlyingError: error)
@@ -202,8 +206,9 @@ class OpenWeatherDataSource: DataSource {
             .map { result in
                 // TODO: This whole mapping voodoo could be moved via a protocol to the API struct defined above
                 let currentRain: Rain?
-                if let openWeatherRain = result.rain {
-                    currentRain = Rain(hourly: openWeatherRain.perHour)
+                if let openWeatherRain = result.rain,
+                   let perHour = openWeatherRain.perHour {
+                    currentRain = Rain(hourly: perHour)
                 } else {
                     currentRain = nil
                 }
