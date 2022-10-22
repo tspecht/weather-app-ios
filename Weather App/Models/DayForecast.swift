@@ -15,11 +15,11 @@ struct DayForecast: Equatable {
 // MARK: - Computed properties
 extension DayForecast {
     var minimumTemperature: Float? {
-        forecasts.map { $0.temperature.average }.min()
+        forecasts.map { $0.temperature.min }.min()
     }
 
     var maxTemperature: Float? {
-        forecasts.map { $0.temperature.average }.max()
+        forecasts.map { $0.temperature.max }.max()
     }
 
     var middleForecast: ForecastWeather {

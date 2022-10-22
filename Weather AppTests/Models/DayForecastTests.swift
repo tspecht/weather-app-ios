@@ -21,6 +21,7 @@ class DayForecastTests: XCTestCase {
                                                                direction: 291),
                                                     clouds: Clouds(coverage: 54),
                                                     rain: nil,
+                                                    description: WeatherDescription(icon: .clear, description: "clear skys"),
                                                     humidity: 9,
                                                     pressure: 1003,
                                                     time: Date(timeIntervalSince1970: 1666396800)),
@@ -33,16 +34,21 @@ class DayForecastTests: XCTestCase {
                                                                direction: 291),
                                                     clouds: Clouds(coverage: 54),
                                                     rain: nil,
+                                                    description: WeatherDescription(icon: .clear, description: "clear skys"),
                                                     humidity: 9,
                                                     pressure: 1003,
                                                     time: Date(timeIntervalSince1970: 1666396801))
                                   ])
 
     func testMinTemperature() {
-        XCTAssertEqual(dayForecast.minimumTemperature, 21)
+        XCTAssertEqual(dayForecast.minimumTemperature, 12)
     }
 
     func testMaxTemperature() {
-        XCTAssertEqual(dayForecast.maxTemperature, 24)
+        XCTAssertEqual(dayForecast.maxTemperature, 23.64)
+    }
+
+    func testMiddleForecast() {
+        XCTAssertEqual(dayForecast.middleForecast, dayForecast.forecasts[0])
     }
 }

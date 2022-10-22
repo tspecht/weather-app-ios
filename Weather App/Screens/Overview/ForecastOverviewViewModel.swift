@@ -12,8 +12,8 @@ protocol ForecastOverviewViewModel {
     var dataUpdated: PassthroughSubject<ForecastOverview.Snapshot, DataSourceError> { get }
 
     init(location: Location, dataSource: DataSource)
-    func loadCurrentWeather()
-    func loadDailyForecast()
+    func loadCurrentWeather() -> AnyPublisher<Bool, DataSourceError>
+    func loadDailyForecast() -> AnyPublisher<Bool, DataSourceError>
 }
 
 struct ForecastOverview {
@@ -57,7 +57,6 @@ class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
 
     private let dataSource: DataSource
     private let location: Location
-    private var cancellables = Set<AnyCancellable>()
 
     required init(location: Location, dataSource: DataSource) {
         self.location = location
@@ -82,9 +81,11 @@ class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
 
     // TODO: We probably want to return a bool publisher here and write to currentWeather using handleEvents as a side-effect.
     // This will require the caller to hold the cancellable though, need to think about if that should be the case
-    func loadCurrentWeather() {
-        dataSource.currentWeather(for: location)
-            .sink(receiveCompletion: { [weak self] result in
+    func loadCurrentWeather() -> AnyPublisher<Bool, DataSourceError> {
+        return dataSource.currentWeather(for: location)
+            .handleEvents(receiveOutput: { [weak self] weather in
+                self?.currentWeather = weather
+            }, receiveCompletion: { [weak self] result in
                 switch result {
                 case .failure(let error):
                     // TODO: There has to be a better way to propagate this error
@@ -93,16 +94,16 @@ class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
                 default:
                     break
                 }
-            }) { [weak self] currentWeather in
-                self?.currentWeather = currentWeather
-            }
-            .store(in: &cancellables)
-
+            })
+            .map { _ in true }
+            .eraseToAnyPublisher()
     }
 
-    func loadDailyForecast() {
+    func loadDailyForecast() -> AnyPublisher<Bool, DataSourceError> {
         dataSource.dailyForecast(for: location)
-            .sink { [weak self] result in
+            .handleEvents(receiveOutput: { [weak self] dailyForecasts in
+                self?.dailyForecasts = dailyForecasts
+            }, receiveCompletion: { [weak self] result in
                 switch result {
                 case .failure(let error):
                     // TODO: There has to be a better way to propagate this error
@@ -111,9 +112,8 @@ class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
                 default:
                     break
                 }
-            } receiveValue: { [weak self] forecasts in
-                self?.dailyForecasts = forecasts
-            }
-            .store(in: &cancellables)
+            })
+            .map { _ in true }
+            .eraseToAnyPublisher()
     }
 }

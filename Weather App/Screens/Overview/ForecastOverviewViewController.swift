@@ -12,7 +12,7 @@ import UIKit
 class ForecastOverviewViewController: UIViewController {
     private let viewModel: ForecastOverviewViewModel
 
-    private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    internal let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
 
     // TODO: Move this to helper function
     // lazy var dataSource = configureDataSource()
@@ -69,8 +69,22 @@ class ForecastOverviewViewController: UIViewController {
         super.viewDidLoad()
 
         setupBindings()
+
+        // TODO: Figure out if there is a way to have an empty sink
         viewModel.loadCurrentWeather()
+            .sink(receiveCompletion: { _ in
+
+            }, receiveValue: { _ in
+
+            })
+            .store(in: &cancellables)
         viewModel.loadDailyForecast()
+            .sink(receiveCompletion: { _ in
+
+            }, receiveValue: { _ in
+
+            })
+            .store(in: &cancellables)
     }
 }
 
