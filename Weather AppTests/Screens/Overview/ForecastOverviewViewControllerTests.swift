@@ -96,7 +96,7 @@ class ForecastOverviewViewControllerTests: XCTestCase {
         var snapshot = ForecastOverview.Snapshot()
 
         snapshot.appendSections([.current, .dailyForecast])
-        snapshot.appendItems([.current(currentWeather)], toSection: .current)
+        snapshot.appendItems([.current(currentWeather, 1.5, 2.2)], toSection: .current)
         snapshot.appendItems([.daily(DayForecast(date: Date(), forecasts: [
             ForecastWeather(temperature: ForecastWeather.Temperature(min: 21.14,
                                                                      max: 23.64,
@@ -124,8 +124,8 @@ class ForecastOverviewViewControllerTests: XCTestCase {
         let currentCell = try XCTUnwrap(viewController.collectionView.dataSource?.collectionView(viewController.collectionView, cellForItemAt: IndexPath(row: 0, section: 0)) as? CurrentWeatherCell)
         XCTAssertEqual(currentCell.locationLabel.text, location.name)
         XCTAssertEqual(currentCell.temperatureLabel.text, "123°")
-        XCTAssertEqual(currentCell.maxTemperatureLabel.text, "H:24°")
-        XCTAssertEqual(currentCell.minTemperatureLabel.text, "L:10°")
+        XCTAssertEqual(currentCell.maxTemperatureLabel.text, "H:2°")
+        XCTAssertEqual(currentCell.minTemperatureLabel.text, "L:1°")
         XCTAssertEqual(currentCell.descriptionLabel.text, "clear skys")
 
         let forecastCell = try XCTUnwrap(viewController.collectionView.dataSource?.collectionView(viewController.collectionView, cellForItemAt: IndexPath(row: 0, section: 1)) as? ForecastCell)

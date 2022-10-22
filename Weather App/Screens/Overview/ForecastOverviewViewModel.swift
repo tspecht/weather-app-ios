@@ -16,18 +16,21 @@ protocol ForecastOverviewViewModel {
     func loadDailyForecast() -> AnyPublisher<Bool, DataSourceError>
 }
 
+// TODO: Probably move to own file as well
 struct ForecastOverview {
 
     typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Item>
 
     enum Item: Hashable {
-        case current(CurrentWeather)
+        case current(CurrentWeather, Float?, Float?)
         case daily(DayForecast)
 
         func hash(into hasher: inout Hasher) {
             switch self {
-            case .current(let currentWeather):
+            case .current(let currentWeather, let min, let max):
                 hasher.combine(currentWeather.time)
+                hasher.combine(min ?? 0)
+                hasher.combine(max ?? 0)
             case .daily(let forecast):
                 hasher.combine(forecast.date)
             }
@@ -67,8 +70,21 @@ class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
         var snapshot = ForecastOverview.Snapshot()
 
         if let currentWeather = currentWeather {
+
+            // See if we pulled todays forecast already and include min and max for today
+            let minTemperature: Float?
+            let maxTemperature: Float?
+            if let dailyForecasts = dailyForecasts,
+               let todaysForecast = dailyForecasts.filter { Calendar.current.isDateInToday($0.date) }.first {
+                   minTemperature = todaysForecast.minimumTemperature
+                   maxTemperature = todaysForecast.maxTemperature
+           } else {
+               minTemperature = nil
+               maxTemperature = nil
+           }
+
             snapshot.appendSections([.current])
-            snapshot.appendItems([.current(currentWeather)], toSection: .current)
+            snapshot.appendItems([.current(currentWeather, minTemperature, maxTemperature)], toSection: .current)
         }
 
         if let dailyForecasts = dailyForecasts {

@@ -20,15 +20,20 @@ class ForecastOverviewViewController: UIViewController {
     private lazy var diffableDataSource: UICollectionViewDiffableDataSource = {
         let dataSource = UICollectionViewDiffableDataSource<ForecastOverview.Section, ForecastOverview.Item>(collectionView: collectionView) { (collectionView, indexPath, item) -> UICollectionViewCell? in
             switch item {
-            case .current(let currentWeather):
+            case .current(let currentWeather, let minTemperature, let maxTemperature):
                 let cell: CurrentWeatherCell = collectionView.dequeueReusableCell(for: indexPath)
                 cell.temperatureLabel.text = "\(Int(currentWeather.temperature.current))°"
                 cell.locationLabel.text = currentWeather.location.name
                 cell.descriptionLabel.text = currentWeather.description.description
 
                 // TODO: This needs to be parsed from the daily forecast
-                cell.minTemperatureLabel.text = "L:10°"
-                cell.maxTemperatureLabel.text = "H:24°"
+                if let minTemperature = minTemperature {
+                    cell.minTemperatureLabel.text = "L:\(Int(minTemperature))°"
+                }
+
+                if let maxTemperature = maxTemperature {
+                    cell.maxTemperatureLabel.text = "H:\(Int(maxTemperature))°"
+                }
 
                 return cell
             case .daily(let forecast):
