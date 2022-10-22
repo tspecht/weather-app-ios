@@ -11,10 +11,14 @@ import Combine
 
 class MockDataSource: DataSource {
 
+    private let networkClient: NetworkClient
+
     var generatedCurrentWeather: [Location: CurrentWeather] = [:]
     var generatedDailyForecasts: [Location: [DayForecast]] = [:]
 
-    required init(session: Alamofire.Session, apiKey: String) {}
+    required init(networkClient: Weather_App.NetworkClient) {
+        self.networkClient = networkClient
+    }
 
     func currentWeather(for location: Location) -> AnyPublisher<CurrentWeather, DataSourceError> {
         let weather = CurrentWeather(temperature: CurrentWeather.Temperature(current: 123,

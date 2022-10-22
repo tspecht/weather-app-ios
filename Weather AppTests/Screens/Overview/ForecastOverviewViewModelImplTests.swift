@@ -22,7 +22,7 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
         try super.setUpWithError()
 
         cancellables = Set<AnyCancellable>()
-        mockDataSource = MockDataSource(session: session, apiKey: "test123")
+        mockDataSource = MockDataSource(networkClient: MockNetworkClient())
         viewModel = ForecastOverviewViewModelImpl(location: location, dataSource: mockDataSource)
     }
 

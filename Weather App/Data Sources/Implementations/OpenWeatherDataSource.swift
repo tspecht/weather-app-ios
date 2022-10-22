@@ -149,23 +149,24 @@ private struct OpenWeatherDailyForecastResponse: Codable {
 }
 
 class OpenWeatherDataSource: DataSource {
-    private let apiKey: String
-    private let session: Alamofire.Session
 
-    required init(session: Alamofire.Session, apiKey: String) {
-        self.session = session
-        self.apiKey = apiKey
+    enum Error: Swift.Error {
+        case cantConstructRequest
+    }
+
+    private let networkClient: NetworkClient
+
+    required init(networkClient: NetworkClient) {
+        self.networkClient = networkClient
     }
 
     func dailyForecast(for location: Location) -> AnyPublisher<[DayForecast], DataSourceError> {
         // TODO: See if we can use some form of URL transformer here to always append the appId in code instead of building it as a string
-        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/forecast?lat=\(location.latitude)&lon=\(location.longitude)&appid=\(apiKey)&units=metric&exclude=hourly,minutely") else {
-            return Fail(error: .cantConstructRequest).eraseToAnyPublisher()
+        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/forecast?lat=\(location.latitude)&lon=\(location.longitude)&units=metric&exclude=hourly,minutely") else {
+            return Fail(error: DataSourceError.networkError(underlyingError: OpenWeatherDataSource.Error.cantConstructRequest)).eraseToAnyPublisher()
         }
-        return session.request(url, method: .get)
-            .validate()
-            .publishDecodable(type: OpenWeatherDailyForecastResponse.self)
-            .value()
+        return networkClient
+            .getData(url, responseType: OpenWeatherDailyForecastResponse.self)
             .mapError { error in
                 return DataSourceError.networkError(underlyingError: error)
             }
@@ -225,13 +226,11 @@ class OpenWeatherDataSource: DataSource {
 
     func currentWeather(for location: Location) -> AnyPublisher<CurrentWeather, DataSourceError> {
         // TODO: See if we can use some form of URL transformer here to always append the appId in code instead of building it as a string
-        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?lat=\(location.latitude)&lon=\(location.longitude)&appid=\(apiKey)&units=metric&exclude=hourly,minutely") else {
-            return Fail(error: .cantConstructRequest).eraseToAnyPublisher()
+        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?lat=\(location.latitude)&lon=\(location.longitude)&units=metric&exclude=hourly,minutely") else {
+            return Fail(error: DataSourceError.networkError(underlyingError: OpenWeatherDataSource.Error.cantConstructRequest)).eraseToAnyPublisher()
         }
-        return session.request(url, method: .get)
-            .validate()
-            .publishDecodable(type: OpenWeatherWeatherResponse.self)
-            .value()
+        return networkClient
+            .getData(url, responseType: OpenWeatherWeatherResponse.self)
             .mapError { error in
                 return DataSourceError.networkError(underlyingError: error)
             }

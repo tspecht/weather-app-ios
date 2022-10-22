@@ -13,7 +13,6 @@ target 'Weather App' do
   target 'Weather AppTests' do
     inherit! :search_paths
     # Pods for testing
-    pod 'Mocker'
   end
 
   target 'Weather AppUITests' do

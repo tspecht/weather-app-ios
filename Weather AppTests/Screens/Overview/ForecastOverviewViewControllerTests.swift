@@ -55,7 +55,7 @@ class ForecastOverviewViewControllerTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
 
-        mockViewModel = MockViewModel(location: location, dataSource: MockDataSource(session: session, apiKey: "test123"))
+        mockViewModel = MockViewModel(location: location, dataSource: MockDataSource(networkClient: MockNetworkClient()))
         viewController = ForecastOverviewViewController(viewModel: mockViewModel)
     }
 

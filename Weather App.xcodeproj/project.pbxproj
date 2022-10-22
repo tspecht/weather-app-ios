@@ -45,6 +45,8 @@
 		E622698529044BD400C0EBE7 /* Array+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = E622698429044BD400C0EBE7 /* Array+Utilities.swift */; };
 		E6226987290466D000C0EBE7 /* ForecastOverviewViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6226986290466D000C0EBE7 /* ForecastOverviewViewControllerTests.swift */; };
 		E6226989290467BF00C0EBE7 /* MockDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6226988290467BF00C0EBE7 /* MockDataSource.swift */; };
+		E622698B29047BF400C0EBE7 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E622698A29047BF400C0EBE7 /* NetworkClient.swift */; };
+		E622698D290481D500C0EBE7 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E622698C290481D500C0EBE7 /* MockNetworkClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,6 +115,8 @@
 		E622698429044BD400C0EBE7 /* Array+Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Utilities.swift"; sourceTree = "<group>"; };
 		E6226986290466D000C0EBE7 /* ForecastOverviewViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForecastOverviewViewControllerTests.swift; sourceTree = "<group>"; };
 		E6226988290467BF00C0EBE7 /* MockDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataSource.swift; sourceTree = "<group>"; };
+		E622698A29047BF400C0EBE7 /* NetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClient.swift; sourceTree = "<group>"; };
+		E622698C290481D500C0EBE7 /* MockNetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkClient.swift; sourceTree = "<group>"; };
 		FF323837B9189497D14D32B6 /* Pods_Weather_AppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Weather_AppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -234,6 +238,7 @@
 			children = (
 				E60DBDB229018A9A0077B17A /* Implementations */,
 				E60DBDB029018A8A0077B17A /* DataSource.swift */,
+				E622698A29047BF400C0EBE7 /* NetworkClient.swift */,
 			);
 			path = "Data Sources";
 			sourceTree = "<group>";
@@ -275,6 +280,7 @@
 			children = (
 				E60DBDC329019F400077B17A /* XCTestCase+Combine.swift */,
 				E6226988290467BF00C0EBE7 /* MockDataSource.swift */,
+				E622698C290481D500C0EBE7 /* MockNetworkClient.swift */,
 			);
 			path = "Test Utils";
 			sourceTree = "<group>";
@@ -398,7 +404,6 @@
 				E60DBD8E29018A4B0077B17A /* Sources */,
 				E60DBD8F29018A4B0077B17A /* Frameworks */,
 				E60DBD9029018A4B0077B17A /* Resources */,
-				9A2D39D9C15BA8EFE8421D4C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -581,23 +586,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		9A2D39D9C15BA8EFE8421D4C /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Weather AppTests/Pods-Weather AppTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Weather AppTests/Pods-Weather AppTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Weather AppTests/Pods-Weather AppTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		BE53E9C644E420832399EF7A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -666,6 +654,7 @@
 				E60DBDD82901D94C0077B17A /* Forecast.swift in Sources */,
 				E60DBDD22901D08F0077B17A /* CurrentWeatherCell.swift in Sources */,
 				E60E761B29043C79005E3FD2 /* Assets.swift in Sources */,
+				E622698B29047BF400C0EBE7 /* NetworkClient.swift in Sources */,
 				E60DBDDA2901DF630077B17A /* Wind.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -679,6 +668,7 @@
 				E60DBDBC29019BC60077B17A /* OpenWeatherDataSourceTests.swift in Sources */,
 				E60DBDC429019F400077B17A /* XCTestCase+Combine.swift in Sources */,
 				E6226987290466D000C0EBE7 /* ForecastOverviewViewControllerTests.swift in Sources */,
+				E622698D290481D500C0EBE7 /* MockNetworkClient.swift in Sources */,
 				E60DBDF0290348000077B17A /* DayForecastTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

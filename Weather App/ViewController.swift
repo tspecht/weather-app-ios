@@ -24,7 +24,18 @@ class ViewController: UIViewController {
 
         let session = Alamofire.Session(configuration: .default,
                                         eventMonitors: [monitor])
-        let dataSource = OpenWeatherDataSource(session: session, apiKey: "a8e5bcdb61bbbb92a1aff8df862d2668")
+        let networkClient = AlamofireNetworkClient { request in
+            var request = request
+            if let url = request.url,
+               let queryComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+                var queryComponents = queryComponents
+                queryComponents.queryItems?.append(URLQueryItem(name: "appid", value: "a8e5bcdb61bbbb92a1aff8df862d2668"))
+                request.url = queryComponents.url
+            }
+
+            return request
+        }
+        let dataSource = OpenWeatherDataSource(networkClient: networkClient)
         return dataSource
     }()
 

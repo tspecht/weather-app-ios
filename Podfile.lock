@@ -1,28 +1,24 @@
 PODS:
   - Alamofire (5.6.2)
-  - Mocker (2.5.5)
   - SnapKit (5.6.0)
   - SwiftGen (6.6.2)
 
 DEPENDENCIES:
   - Alamofire
-  - Mocker
   - SnapKit
   - SwiftGen
 
 SPEC REPOS:
   trunk:
     - Alamofire
-    - Mocker
     - SnapKit
     - SwiftGen
 
 SPEC CHECKSUMS:
   Alamofire: d368e1ff8a298e6dde360e35a3e68e6c610e7204
-  Mocker: 8c731a8104962f246cadf2b02556218e9edc1390
   SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
   SwiftGen: 1366a7f71aeef49954ca5a63ba4bef6b0f24138c
 
-PODFILE CHECKSUM: 526be43aa3bd950752468db38a636ab8c4490415
+PODFILE CHECKSUM: 9bb00310a0707795d5a35d4677004ec6a80b0883
 
 COCOAPODS: 1.11.3
