@@ -21,6 +21,13 @@ extension DayForecast {
     var maxTemperature: Float? {
         forecasts.map { $0.temperature.average }.max()
     }
+
+    var middleForecast: ForecastWeather {
+        guard let middle = forecasts.middle else {
+            fatalError("Expected non-empty list of forecasts!")
+        }
+        return middle
+    }
 }
 
 // MARK: - Comparable

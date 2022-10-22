@@ -8,29 +8,47 @@
 import UIKit
 import SnapKit
 
+private let kDefaultFontName = "HelveticaNeue-Thin"
+
 // TODO: Does this need it's own view model?
 class CurrentWeatherCell: UICollectionViewCell, Reusable {
     lazy var locationLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .white
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 16)
+        label.font = UIFont(name: kDefaultFontName, size: 24)
         return label
     }()
 
     lazy var temperatureLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .white
         label.textAlignment = .center
-        label.font = .boldSystemFont(ofSize: 32)
+        label.font = UIFont(name: kDefaultFontName, size: 64)
         return label
     }()
 
-    lazy var feelsLikeLabel: UILabel = {
+    lazy var descriptionLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .white
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 16)
+        label.font = UIFont(name: kDefaultFontName, size: 16)
+        return label
+    }()
+
+    lazy var minTemperatureLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .white
+        label.textAlignment = .center
+        label.font = UIFont(name: kDefaultFontName, size: 16)
+        return label
+    }()
+
+    lazy var maxTemperatureLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .white
+        label.textAlignment = .center
+        label.font = UIFont(name: kDefaultFontName, size: 16)
         return label
     }()
 
@@ -47,21 +65,38 @@ class CurrentWeatherCell: UICollectionViewCell, Reusable {
     private func configureViews() {
         addSubview(temperatureLabel)
         addSubview(locationLabel)
-        addSubview(feelsLikeLabel)
+        addSubview(minTemperatureLabel)
+        addSubview(maxTemperatureLabel)
+        addSubview(descriptionLabel)
 
-        locationLabel.snp.makeConstraints { make in
-            make.top.left.right.equalTo(self)
-            make.height.equalTo(20)
-        }
+        let verticalPadding: CGFloat = 4
 
         temperatureLabel.snp.makeConstraints { make in
             make.left.right.equalTo(self)
-            make.top.equalTo(locationLabel.snp.bottom)
+            make.centerY.equalTo(self)
+            make.top.equalTo(locationLabel.snp.bottom).offset(verticalPadding)
         }
 
-        feelsLikeLabel.snp.makeConstraints { make in
-            make.bottom.left.right.equalTo(self)
+        locationLabel.snp.makeConstraints { make in
+            make.bottom.equalTo(temperatureLabel.snp.top).offset(verticalPadding)
+            make.left.right.equalTo(self)
+        }
+
+        descriptionLabel.snp.makeConstraints { make in
+            make.left.right.equalTo(self)
             make.top.equalTo(temperatureLabel.snp.bottom)
+        }
+
+        maxTemperatureLabel.snp.makeConstraints { make in
+            make.top.equalTo(descriptionLabel.snp.bottom).offset(verticalPadding)
+            make.bottom.equalTo(self).inset(verticalPadding)
+            make.right.equalTo(self.snp.centerX).inset(4)
+        }
+
+        minTemperatureLabel.snp.makeConstraints { make in
+            make.top.equalTo(descriptionLabel.snp.bottom).offset(verticalPadding)
+            make.bottom.equalTo(self).inset(verticalPadding)
+            make.left.equalTo(self.snp.centerX).offset(4)
         }
     }
 }

@@ -22,13 +22,21 @@ class ForecastOverviewViewController: UIViewController {
             switch item {
             case .current(let currentWeather):
                 let cell: CurrentWeatherCell = collectionView.dequeueReusableCell(for: indexPath)
-                cell.temperatureLabel.text = "\(currentWeather.temperature.current)°"
-                cell.feelsLikeLabel.text = "Feels like \(currentWeather.temperature.feelsLike)°"
+                cell.temperatureLabel.text = "\(Int(currentWeather.temperature.current))°"
                 cell.locationLabel.text = currentWeather.location.name
+                cell.descriptionLabel.text = currentWeather.description.description
+
+                // TODO: This needs to be parsed from the daily forecast
+                cell.minTemperatureLabel.text = "L:10°"
+                cell.maxTemperatureLabel.text = "H:24°"
+
                 return cell
             case .daily(let forecast):
                 let cell: ForecastCell = collectionView.dequeueReusableCell(for: indexPath)
-                cell.temperatureLabel.text = "\(forecast.maxTemperature ?? 0)°"
+                cell.maxTemperatureLabel.text = "\(Int(forecast.maxTemperature ?? 0))°"
+                cell.minTemperatureLabel.text = "\(Int(forecast.minimumTemperature ?? 0))°"
+
+                cell.iconImageView.image = forecast.middleForecast.description.iconImageAsset.image
 
                 // TODO: This needs to move somewhere else
                 let dateFormatter = DateFormatter()
@@ -83,6 +91,9 @@ private extension ForecastOverviewViewController {
 private extension ForecastOverviewViewController {
     func configureViews() {
 
+        view.backgroundColor = Asset.lightBlueColor.color
+
+        collectionView.backgroundColor = .clear
         collectionView.delegate = self
         collectionView.dataSource = diffableDataSource
         collectionView.register(CurrentWeatherCell.self)
@@ -101,9 +112,9 @@ extension ForecastOverviewViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         switch ForecastOverview.Section(rawValue: indexPath.section) {
         case .current:
-            return CGSize(width: collectionView.bounds.size.width, height: 150)
+            return CGSize(width: collectionView.bounds.size.width, height: 175)
         case .dailyForecast:
-            return CGSize(width: collectionView.bounds.size.width - 2 * 32, height: 150)
+            return CGSize(width: collectionView.bounds.size.width - 2 * 32, height: 50)
         case .none:
             return .zero
         }
@@ -112,7 +123,7 @@ extension ForecastOverviewViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         switch ForecastOverview.Section(rawValue: section) {
         case .dailyForecast:
-            return UIEdgeInsets(top: 0, left: 32, bottom: 8, right: 32)
+            return UIEdgeInsets(top: 32, left: 32, bottom: 8, right: 32)
         default:
             return .zero
         }

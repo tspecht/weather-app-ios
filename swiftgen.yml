@@ -1,0 +1,5 @@
+xcassets:
+  inputs: .
+  outputs:
+    templateName: swift5
+    output: "Weather App/Utilities/Assets.swift"

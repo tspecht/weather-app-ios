@@ -39,7 +39,7 @@ struct ForecastOverview {
     }
 }
 
-class WeatherOverviewViewModelImpl: ForecastOverviewViewModel {
+class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
 
     var dataUpdated: PassthroughSubject<ForecastOverview.Snapshot, DataSourceError> = PassthroughSubject()
 
@@ -80,12 +80,15 @@ class WeatherOverviewViewModelImpl: ForecastOverviewViewModel {
         dataUpdated.send(snapshot)
     }
 
+    // TODO: We probably want to return a bool publisher here and write to currentWeather using handleEvents as a side-effect.
+    // This will require the caller to hold the cancellable though, need to think about if that should be the case
     func loadCurrentWeather() {
         dataSource.currentWeather(for: location)
             .sink(receiveCompletion: { [weak self] result in
                 switch result {
                 case .failure(let error):
                     // TODO: There has to be a better way to propagate this error
+                    print(error)
                     self?.currentWeather = nil
                 default:
                     break
@@ -103,6 +106,7 @@ class WeatherOverviewViewModelImpl: ForecastOverviewViewModel {
                 switch result {
                 case .failure(let error):
                     // TODO: There has to be a better way to propagate this error
+                    print(error)
                     self?.dailyForecasts = nil
                 default:
                     break

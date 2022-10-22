@@ -101,6 +101,36 @@ private struct OpenWeatherRainResponse: Codable {
     let perThreeHours: Float?
 }
 
+private struct OpenWeatherWeatherSubResponse: Codable {
+    let icon: String
+    let description: String
+
+    var asWeatherDescriptionIcon: WeatherDescription.Icon {
+        switch icon {
+        case "01d", "01n":
+            return .clear
+        case "02d", "02n":
+            return .partlyCloudy
+        case "03d", "03n":
+            return .scatteredClouds
+        case "04d", "04n":
+            return .brokenClouds
+        case "09d", "09n":
+            return .showers
+        case "10d", "10n":
+            return .rain
+        case "11d", "11n":
+            return .thunderstorm
+        case "13d", "13n":
+            return .snow
+        case "50d", "50n":
+            return .mist
+        default:
+            return .clear
+        }
+    }
+}
+
 private struct OpenWeatherCloudsResponse: Codable {
     let all: Float
 }
@@ -110,6 +140,7 @@ private struct OpenWeatherWeatherResponse: Codable {
     let wind: OpenWeatherWindResponse
     let rain: OpenWeatherRainResponse?
     let clouds: OpenWeatherCloudsResponse
+    let weather: [OpenWeatherWeatherSubResponse]
     let dt: Double
 }
 
@@ -138,17 +169,17 @@ class OpenWeatherDataSource: DataSource {
             .mapError { error in
                 return DataSourceError.networkError(underlyingError: error)
             }
-            .map { result in
+            .map { response in
 
                 // Convert all the data at first
-                let forecastWeathers = result.list.compactMap { response -> ForecastWeather? in
+                let forecastWeathers = response.list.compactMap { result -> ForecastWeather? in
                     // TODO: This whole mapping voodoo could be moved via a protocol to the API struct defined above
-                    guard let tempMin = response.main.tempMin,
-                          let tempMax = response.main.tempMax else {
+                    guard let tempMin = result.main.tempMin,
+                          let tempMax = result.main.tempMax else {
                         return nil
                     }
                     let rain: Rain?
-                    if let openWeatherRain = response.rain,
+                    if let openWeatherRain = result.rain,
                        let perThreeHours = openWeatherRain.perThreeHours {
                         rain = Rain(hourly: perThreeHours)  // TODO: This isn't correct
                     } else {
@@ -156,16 +187,17 @@ class OpenWeatherDataSource: DataSource {
                     }
                     return ForecastWeather(temperature: ForecastWeather.Temperature(min: tempMin,
                                                                                     max: tempMax,
-                                                                                    feelsLike: response.main.feelsLike,
-                                                                                    average: response.main.temp),
-                                           wind: Wind(speed: response.wind.speed,
-                                                      gusts: response.wind.gust,
-                                                      direction: response.wind.deg),
-                                           clouds: Clouds(coverage: response.clouds.all),
+                                                                                    feelsLike: result.main.feelsLike,
+                                                                                    average: result.main.temp),
+                                           wind: Wind(speed: result.wind.speed,
+                                                      gusts: result.wind.gust,
+                                                      direction: result.wind.deg),
+                                           clouds: Clouds(coverage: result.clouds.all),
                                            rain: rain,
-                                           humidity: response.main.humidity,
-                                           pressure: response.main.pressure,
-                                           time: Date(timeIntervalSince1970: response.dt))
+                                           description: WeatherDescription(icon: result.weather[0].asWeatherDescriptionIcon, description: result.weather[0].description),
+                                           humidity: result.main.humidity,
+                                           pressure: result.main.pressure,
+                                           time: Date(timeIntervalSince1970: result.dt))
                 }
 
                 // Group by date next
@@ -220,6 +252,7 @@ class OpenWeatherDataSource: DataSource {
                                                  direction: result.wind.deg),
                                       clouds: Clouds(coverage: result.clouds.all),
                                       rain: currentRain,
+                                      description: WeatherDescription(icon: result.weather[0].asWeatherDescriptionIcon, description: result.weather[0].description),
                                       humidity: result.main.humidity,
                                       pressure: result.main.pressure,
                                       location: location,

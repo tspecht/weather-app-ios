@@ -29,7 +29,7 @@ class ViewController: UIViewController {
     }()
 
     private lazy var viewModel: ForecastOverviewViewModel = {
-       return WeatherOverviewViewModelImpl(location: Location(name: "Home", latitude: 39.7331297, longitude: -104.9542389), dataSource: dataSource)
+       return ForecastOverviewViewModelImpl(location: Location(name: "Denver", latitude: 39.7331297, longitude: -104.9542389), dataSource: dataSource)
     }()
 
     override func viewDidLoad() {

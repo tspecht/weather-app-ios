@@ -19,6 +19,7 @@ struct ForecastWeather: Equatable {
     let clouds: Clouds
     let rain: Rain?
 
+    let description: WeatherDescription
     let humidity: Int
     let pressure: Int
     let time: Date

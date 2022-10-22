@@ -15,6 +15,7 @@ enum DataSourceError: Error {
 }
 
 protocol DataSource {
+    // TODO: This is an ugly dependency on Alamofire. WOuld be nice to have this behind an agnostic protocol
     init(session: Alamofire.Session, apiKey: String)
     func currentWeather(for location: Location) -> AnyPublisher<CurrentWeather, DataSourceError>
     func dailyForecast(for location: Location) -> AnyPublisher<[DayForecast], DataSourceError>
