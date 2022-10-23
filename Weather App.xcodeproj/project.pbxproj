@@ -57,6 +57,9 @@
 		E6E1EFA229059E9400821266 /* DateFormatter+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E1EFA129059E9400821266 /* DateFormatter+Convenience.swift */; };
 		E6E1EFA529059EF700821266 /* ForecastCellViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E1EFA429059EF700821266 /* ForecastCellViewModelTests.swift */; };
 		E6E1EFA72905A00800821266 /* ForecastCellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E1EFA62905A00800821266 /* ForecastCellTests.swift */; };
+		E6E1EFAA2905A45D00821266 /* daily_success.json in Resources */ = {isa = PBXBuildFile; fileRef = E6E1EFA92905A45D00821266 /* daily_success.json */; };
+		E6E1EFAC2905A46B00821266 /* OpenMeteoDataSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E1EFAB2905A46B00821266 /* OpenMeteoDataSourceTests.swift */; };
+		E6E1EFAD2905A46F00821266 /* OpenMeteoDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = E622698E290490A600C0EBE7 /* OpenMeteoDataSource.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -138,6 +141,8 @@
 		E6E1EFA129059E9400821266 /* DateFormatter+Convenience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatter+Convenience.swift"; sourceTree = "<group>"; };
 		E6E1EFA429059EF700821266 /* ForecastCellViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForecastCellViewModelTests.swift; sourceTree = "<group>"; };
 		E6E1EFA62905A00800821266 /* ForecastCellTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForecastCellTests.swift; sourceTree = "<group>"; };
+		E6E1EFA92905A45D00821266 /* daily_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = daily_success.json; sourceTree = "<group>"; };
+		E6E1EFAB2905A46B00821266 /* OpenMeteoDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenMeteoDataSourceTests.swift; sourceTree = "<group>"; };
 		FF323837B9189497D14D32B6 /* Pods_Weather_AppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Weather_AppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -294,6 +299,7 @@
 			isa = PBXGroup;
 			children = (
 				E60DBDBB29019BC60077B17A /* OpenWeatherDataSourceTests.swift */,
+				E6E1EFAB2905A46B00821266 /* OpenMeteoDataSourceTests.swift */,
 			);
 			path = "Data Sources";
 			sourceTree = "<group>";
@@ -319,6 +325,7 @@
 		E60DBDC62901A13D0077B17A /* Responses */ = {
 			isa = PBXGroup;
 			children = (
+				E6E1EFA82905A45D00821266 /* OpenMeteo */,
 				E60DBDC72901A13D0077B17A /* OpenWeather */,
 			);
 			path = Responses;
@@ -453,6 +460,14 @@
 			path = Forecast;
 			sourceTree = "<group>";
 		};
+		E6E1EFA82905A45D00821266 /* OpenMeteo */ = {
+			isa = PBXGroup;
+			children = (
+				E6E1EFA92905A45D00821266 /* daily_success.json */,
+			);
+			path = OpenMeteo;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -575,6 +590,7 @@
 			files = (
 				E60DBDC92901A13D0077B17A /* weather_success.json in Resources */,
 				E60DBDEB2903420F0077B17A /* 5d_forecast_success.json in Resources */,
+				E6E1EFAA2905A45D00821266 /* daily_success.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -739,6 +755,7 @@
 				E60DBDD22901D08F0077B17A /* CurrentWeatherCell.swift in Sources */,
 				E6E1EFA029059CFC00821266 /* ForecastCellViewModel.swift in Sources */,
 				E60E761B29043C79005E3FD2 /* Assets.swift in Sources */,
+				E6E1EFAD2905A46F00821266 /* OpenMeteoDataSource.swift in Sources */,
 				E622698B29047BF400C0EBE7 /* NetworkClient.swift in Sources */,
 				E60DBDDA2901DF630077B17A /* Wind.swift in Sources */,
 			);
@@ -758,6 +775,7 @@
 				E6E1EF9929059B1C00821266 /* CurrentWeatherCellViewModelTests.swift in Sources */,
 				E60DBDC429019F400077B17A /* XCTestCase+Combine.swift in Sources */,
 				E6226987290466D000C0EBE7 /* ForecastOverviewViewControllerTests.swift in Sources */,
+				E6E1EFAC2905A46B00821266 /* OpenMeteoDataSourceTests.swift in Sources */,
 				E622698D290481D500C0EBE7 /* MockNetworkClient.swift in Sources */,
 				E60DBDF0290348000077B17A /* DayForecastTests.swift in Sources */,
 			);

@@ -35,7 +35,7 @@ class ViewController: UIViewController {
 
             return request
         }
-        let dataSource = OpenWeatherDataSource(networkClient: networkClient)
+        let dataSource = OpenMeteoDataSource(networkClient: networkClient)
         return dataSource
     }()
 

@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-private let dateFormatter = DateFormatter(format: "EE")
+private let dateFormatter = DateFormatter(format: "EE", timezone: TimeZone(secondsFromGMT: 0))
 
 struct ForecastCellViewModel {
     let date: String
@@ -25,6 +25,7 @@ struct ForecastCellViewModel {
         self.minTemperature = "\(Int(dayMinTemperature))°"
         self.relativeTemperatureRange = (start: (dayMinTemperature - minTemperature) / maxTemperature, end: dayMaxTemperature / maxTemperature)
         self.iconImage = forecast.middleForecast.description.iconImageAsset.image
+
         self.date = dateFormatter.string(from: forecast.date)
     }
 }

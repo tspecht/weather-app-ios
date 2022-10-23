@@ -14,4 +14,8 @@ extension Array {
         let middleIndex = (count > 1 ? count - 1 : count) / 2
         return self[middleIndex]
     }
+
+    subscript (safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
 }

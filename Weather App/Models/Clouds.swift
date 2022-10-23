@@ -8,5 +8,5 @@
 import Foundation
 
 struct Clouds: Equatable {
-    let coverage: Float
+    let coverage: Int
 }

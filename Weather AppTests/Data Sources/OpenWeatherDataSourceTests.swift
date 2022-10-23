@@ -34,7 +34,6 @@ class OpenWeatherDataSourceTests: XCTestCase {
 
     func testForecastForLocationSuccess() throws {
         let url = try XCTUnwrap(URL(string: "https://api.openweathermap.org/data/2.5/forecast?lat=\(Fakes.location.latitude)&lon=\(Fakes.location.longitude)&units=metric&exclude=hourly,minutely"))
-
         mockNetworkClient.register(try! Data(contentsOf: MockedData.fiveDayForecastSuccessJSON), for: url)
 
         let forecast = try awaitPublisherResult(dataSource.dailyForecast(for: Fakes.location))

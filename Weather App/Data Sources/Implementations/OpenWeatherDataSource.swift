@@ -161,7 +161,6 @@ class OpenWeatherDataSource: DataSource {
     }
 
     func dailyForecast(for location: Location) -> AnyPublisher<[DayForecast], DataSourceError> {
-        // TODO: See if we can use some form of URL transformer here to always append the appId in code instead of building it as a string
         guard let url = URL(string: "https://api.openweathermap.org/data/2.5/forecast?lat=\(location.latitude)&lon=\(location.longitude)&units=metric&exclude=hourly,minutely") else {
             return Fail(error: DataSourceError.networkError(underlyingError: OpenWeatherDataSource.Error.cantConstructRequest)).eraseToAnyPublisher()
         }
@@ -193,7 +192,7 @@ class OpenWeatherDataSource: DataSource {
                                            wind: Wind(speed: result.wind.speed,
                                                       gusts: result.wind.gust,
                                                       direction: result.wind.deg),
-                                           clouds: Clouds(coverage: result.clouds.all),
+                                           clouds: Clouds(coverage: Int(result.clouds.all)),
                                            rain: rain,
                                            description: WeatherDescription(icon: result.weather[0].asWeatherDescriptionIcon, description: result.weather[0].description),
                                            humidity: result.main.humidity,
@@ -225,7 +224,6 @@ class OpenWeatherDataSource: DataSource {
     }
 
     func currentWeather(for location: Location) -> AnyPublisher<CurrentWeather, DataSourceError> {
-        // TODO: See if we can use some form of URL transformer here to always append the appId in code instead of building it as a string
         guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?lat=\(location.latitude)&lon=\(location.longitude)&units=metric&exclude=hourly,minutely") else {
             return Fail(error: DataSourceError.networkError(underlyingError: OpenWeatherDataSource.Error.cantConstructRequest)).eraseToAnyPublisher()
         }
@@ -249,7 +247,7 @@ class OpenWeatherDataSource: DataSource {
                                       wind: Wind(speed: result.wind.speed,
                                                  gusts: result.wind.gust,
                                                  direction: result.wind.deg),
-                                      clouds: Clouds(coverage: result.clouds.all),
+                                      clouds: Clouds(coverage: Int(result.clouds.all)),
                                       rain: currentRain,
                                       description: WeatherDescription(icon: result.weather[0].asWeatherDescriptionIcon, description: result.weather[0].description),
                                       humidity: result.main.humidity,
