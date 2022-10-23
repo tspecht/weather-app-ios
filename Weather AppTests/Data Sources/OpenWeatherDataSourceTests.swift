@@ -16,7 +16,6 @@ class OpenWeatherDataSourceTests: XCTestCase {
         public static let fiveDayForecastSuccessJSON: URL = Bundle(for: OpenWeatherDataSourceTests.self).url(forResource: "5d_forecast_success", withExtension: "json")!
     }
 
-    private let location = Location(name: "test123", latitude: 123.456, longitude: 123.456)
     private var mockNetworkClient = MockNetworkClient(requestAdapter: nil)
     private var dataSource: OpenWeatherDataSource!
 
@@ -34,16 +33,16 @@ class OpenWeatherDataSourceTests: XCTestCase {
     }
 
     func testForecastForLocationSuccess() throws {
-        let url = try XCTUnwrap(URL(string: "https://api.openweathermap.org/data/2.5/forecast?lat=\(location.latitude)&lon=\(location.longitude)&units=metric&exclude=hourly,minutely"))
+        let url = try XCTUnwrap(URL(string: "https://api.openweathermap.org/data/2.5/forecast?lat=\(Fakes.location.latitude)&lon=\(Fakes.location.longitude)&units=metric&exclude=hourly,minutely"))
 
         mockNetworkClient.register(try! Data(contentsOf: MockedData.fiveDayForecastSuccessJSON), for: url)
 
-        let forecast = try awaitPublisherResult(dataSource.dailyForecast(for: location))
+        let forecast = try awaitPublisherResult(dataSource.dailyForecast(for: Fakes.location))
 
         // TODO: Need one more day in the test data to make sure the grouping works
         let expectedForecasts = [
             // 10/21
-            DayForecast(date: Date(timeIntervalSince1970: 1666332000), forecasts: [
+            Fakes.dayForecast(for: Date(timeIntervalSince1970: 1666332000), forecasts: [
                 ForecastWeather(temperature: ForecastWeather.Temperature(min: 21.14,
                                                                          max: 23.64,
                                                                          feelsLike: 22.29,
@@ -75,7 +74,7 @@ class OpenWeatherDataSourceTests: XCTestCase {
             ]),
 
             // 10/26
-            DayForecast(date: Date(timeIntervalSince1970: 1666764000), forecasts: [
+            Fakes.dayForecast(for: Date(timeIntervalSince1970: 1666764000), forecasts: [
                 ForecastWeather(temperature: ForecastWeather.Temperature(min: 6.53,
                                                                          max: 6.53,
                                                                          feelsLike: 4.82,
@@ -110,11 +109,11 @@ class OpenWeatherDataSourceTests: XCTestCase {
     }
 
     func testCurrentWeatherForLocationSuccess() throws {
-        let url = try XCTUnwrap(URL(string: "https://api.openweathermap.org/data/2.5/weather?lat=\(location.latitude)&lon=\(location.longitude)&units=metric&exclude=hourly,minutely"))
+        let url = try XCTUnwrap(URL(string: "https://api.openweathermap.org/data/2.5/weather?lat=\(Fakes.location.latitude)&lon=\(Fakes.location.longitude)&units=metric&exclude=hourly,minutely"))
 
         mockNetworkClient.register(try! Data(contentsOf: MockedData.weatherSuccessJSON), for: url)
 
-        let currentWeather = try awaitPublisherResult(dataSource.currentWeather(for: location))
+        let currentWeather = try awaitPublisherResult(dataSource.currentWeather(for: Fakes.location))
         XCTAssertEqual(currentWeather, CurrentWeather(temperature: CurrentWeather.Temperature(current: 298.48,
                                                                                               feelsLike: 298.74),
                                                       wind: Wind(speed: 0.62,
@@ -126,7 +125,7 @@ class OpenWeatherDataSourceTests: XCTestCase {
                                                                                       description: "moderate rain"),
                                                       humidity: 64,
                                                       pressure: 1015,
-                                                      location: location,
+                                                      location: Fakes.location,
                                                       time: Date(timeIntervalSince1970: 1661870592)))
     }
 }

@@ -47,7 +47,6 @@ class ForecastOverviewViewControllerTests: XCTestCase {
 
     }
 
-    let location = Location(name: "Test location", latitude: 123, longitude: 456)
     let session = Alamofire.Session()
     var mockViewModel: MockViewModel!
     var viewController: ForecastOverviewViewController!
@@ -55,7 +54,7 @@ class ForecastOverviewViewControllerTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
 
-        mockViewModel = MockViewModel(location: location, dataSource: MockDataSource(networkClient: MockNetworkClient()))
+        mockViewModel = MockViewModel(location: Fakes.location, dataSource: MockDataSource(networkClient: MockNetworkClient()))
         viewController = ForecastOverviewViewController(viewModel: mockViewModel)
     }
 
@@ -80,38 +79,11 @@ class ForecastOverviewViewControllerTests: XCTestCase {
         _ = viewController.view  // To make sure the view gets loaded
         XCTAssertEqual(viewController.collectionView.numberOfSections, 0)
 
-        let currentWeather = CurrentWeather(temperature: CurrentWeather.Temperature(current: 123,
-                                                                             feelsLike: 123),
-                                     wind: Wind(speed: 2,
-                                                gusts: 3,
-                                                direction: 4),
-                                     clouds: Clouds(coverage: 100),
-                                     rain: nil,
-                                     description: WeatherDescription(icon: .clear, description: "clear skys"),
-                                     humidity: 12,
-                                     pressure: 1234,
-                                     location: location,
-                                     time: Date())
-
         var snapshot = ForecastOverview.Snapshot()
 
         snapshot.appendSections([.current, .dailyForecast])
-        snapshot.appendItems([.current(currentWeather, 1.5, 2.2)], toSection: .current)
-        snapshot.appendItems([.daily(DayForecast(date: Date(), forecasts: [
-            ForecastWeather(temperature: ForecastWeather.Temperature(min: 21.14,
-                                                                     max: 23.64,
-                                                                     feelsLike: 22.29,
-                                                                     average: 21),
-                            wind: Wind(speed: 3.88,
-                                       gusts: 6.81,
-                                       direction: 291),
-                            clouds: Clouds(coverage: 54),
-                            rain: nil,
-                            description: WeatherDescription(icon: .clear, description: "clear skys"),
-                            humidity: 9,
-                            pressure: 1003,
-                            time: Date(timeIntervalSince1970: 1666396800))
-        ]), 2, 100)], toSection: .dailyForecast)
+        snapshot.appendItems([.current(Fakes.currentWeather, 1.5, 2.2)], toSection: .current)
+        snapshot.appendItems([.daily(Fakes.dayForecast(), 2, 100)], toSection: .dailyForecast)
 
         mockViewModel.dataUpdated.send(snapshot)
 
@@ -122,7 +94,7 @@ class ForecastOverviewViewControllerTests: XCTestCase {
 
         // Make sure the cells are alright
         let currentCell = try XCTUnwrap(viewController.collectionView.dataSource?.collectionView(viewController.collectionView, cellForItemAt: IndexPath(row: 0, section: 0)) as? CurrentWeatherCell)
-        XCTAssertEqual(currentCell.locationLabel.text, location.name)
+        XCTAssertEqual(currentCell.locationLabel.text, Fakes.location.name)
         XCTAssertEqual(currentCell.temperatureLabel.text, "123°")
         XCTAssertEqual(currentCell.maxTemperatureLabel.text, "H:2°")
         XCTAssertEqual(currentCell.minTemperatureLabel.text, "L:1°")

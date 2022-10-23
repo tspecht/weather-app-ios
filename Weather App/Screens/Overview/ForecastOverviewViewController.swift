@@ -22,34 +22,13 @@ class ForecastOverviewViewController: UIViewController {
             switch item {
             case .current(let currentWeather, let minTemperature, let maxTemperature):
                 let cell: CurrentWeatherCell = collectionView.dequeueReusableCell(for: indexPath)
-                cell.temperatureLabel.text = "\(Int(currentWeather.temperature.current))°"
-                cell.locationLabel.text = currentWeather.location.name
-                cell.descriptionLabel.text = currentWeather.description.description
-
-                if let minTemperature = minTemperature {
-                    cell.minTemperatureLabel.text = "L:\(Int(minTemperature))°"
-                }
-
-                if let maxTemperature = maxTemperature {
-                    cell.maxTemperatureLabel.text = "H:\(Int(maxTemperature))°"
-                }
-
+                let cellViewModel = CurrentWeatherCellViewModel(currentWeather: currentWeather, minTemperature: minTemperature, maxTemperature: maxTemperature)
+                cell.configure(with: cellViewModel)
                 return cell
             case .daily(let forecast, let min, let max):
                 let cell: ForecastCell = collectionView.dequeueReusableCell(for: indexPath)
-
-                let dayMinTemperature = forecast.minTemperature ?? 0
-                let dayMaxTemperature = forecast.maxTemperature ?? 100
-                cell.maxTemperatureLabel.text = "\(Int(dayMaxTemperature))°"
-                cell.minTemperatureLabel.text = "\(Int(dayMinTemperature))°"
-                cell.rangeView.setRange(start: (dayMinTemperature - min) / max, end: dayMaxTemperature / max)
-
-                cell.iconImageView.image = forecast.middleForecast.description.iconImageAsset.image
-
-                // TODO: This needs to move somewhere else
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "EE"
-                cell.dateLabel.text = dateFormatter.string(from: forecast.date)
+                let cellViewModel = ForecastCellViewModel(forecast: forecast, minTemperature: min, maxTemperature: max)
+                cell.configure(with: cellViewModel)
                 return cell
             }
         }

@@ -11,7 +11,6 @@ import XCTest
 @testable import Weather_App
 
 class ForecastOverviewViewModelImplTests: XCTestCase {
-    let location = Location(name: "Test location", latitude: 123, longitude: 456)
     let session = Alamofire.Session()
     var viewModel: ForecastOverviewViewModelImpl!
     var mockDataSource: MockDataSource!
@@ -23,7 +22,7 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
 
         cancellables = Set<AnyCancellable>()
         mockDataSource = MockDataSource(networkClient: MockNetworkClient())
-        viewModel = ForecastOverviewViewModelImpl(location: location, dataSource: mockDataSource)
+        viewModel = ForecastOverviewViewModelImpl(location: Fakes.location, dataSource: mockDataSource)
     }
 
     override func tearDownWithError() throws {
@@ -56,7 +55,7 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
         let snapshot = try XCTUnwrap(resultSnapshot)
         XCTAssertEqual(snapshot.sectionIdentifiers, [.current])
 
-        let generatedData = try XCTUnwrap(mockDataSource.generatedCurrentWeather[location])
+        let generatedData = try XCTUnwrap(mockDataSource.generatedCurrentWeather[Fakes.location])
         XCTAssertEqual(snapshot.itemIdentifiers(inSection: .current), [.current(generatedData, nil, nil)])
     }
 
@@ -81,7 +80,7 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
         let snapshot = try XCTUnwrap(resultSnapshot)
         XCTAssertEqual(snapshot.sectionIdentifiers, [.dailyForecast])
 
-        let generatedData = try XCTUnwrap(mockDataSource.generatedDailyForecasts[location])
+        let generatedData = try XCTUnwrap(mockDataSource.generatedDailyForecasts[Fakes.location])
         XCTAssertEqual(snapshot.itemIdentifiers(inSection: .dailyForecast), generatedData.map { .daily($0, 21.14, 23.64) })
     }
 
@@ -105,10 +104,10 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
         let snapshot = try XCTUnwrap(resultSnapshot)
         XCTAssertEqual(snapshot.sectionIdentifiers, [.current, .dailyForecast])
 
-        let generatedCurrentWeather = try XCTUnwrap(mockDataSource.generatedCurrentWeather[location])
+        let generatedCurrentWeather = try XCTUnwrap(mockDataSource.generatedCurrentWeather[Fakes.location])
         XCTAssertEqual(snapshot.itemIdentifiers(inSection: .current), [.current(generatedCurrentWeather, 21.14, 23.64)])
 
-        let generatedDailyForecasts = try XCTUnwrap(mockDataSource.generatedDailyForecasts[location])
+        let generatedDailyForecasts = try XCTUnwrap(mockDataSource.generatedDailyForecasts[Fakes.location])
         XCTAssertEqual(snapshot.itemIdentifiers(inSection: .dailyForecast), generatedDailyForecasts.map { .daily($0, 21.14, 23.64) })
     }
 }

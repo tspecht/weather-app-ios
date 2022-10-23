@@ -10,35 +10,34 @@ import XCTest
 
 class DayForecastTests: XCTestCase {
 
-    let dayForecast = DayForecast(date: Date(),
-                                  forecasts: [
-                                    ForecastWeather(temperature: ForecastWeather.Temperature(min: 21.14,
-                                                                                             max: 23.64,
-                                                                                             feelsLike: 22.29,
-                                                                                             average: 21),
-                                                    wind: Wind(speed: 3.88,
-                                                               gusts: 6.81,
-                                                               direction: 291),
-                                                    clouds: Clouds(coverage: 54),
-                                                    rain: nil,
-                                                    description: WeatherDescription(icon: .clear, description: "clear skys"),
-                                                    humidity: 9,
-                                                    pressure: 1003,
-                                                    time: Date(timeIntervalSince1970: 1666396800)),
-                                    ForecastWeather(temperature: ForecastWeather.Temperature(min: 12,
-                                                                                             max: 21,
-                                                                                             feelsLike: 22.29,
-                                                                                             average: 24),
-                                                    wind: Wind(speed: 3.88,
-                                                               gusts: 6.81,
-                                                               direction: 291),
-                                                    clouds: Clouds(coverage: 54),
-                                                    rain: nil,
-                                                    description: WeatherDescription(icon: .clear, description: "clear skys"),
-                                                    humidity: 9,
-                                                    pressure: 1003,
-                                                    time: Date(timeIntervalSince1970: 1666396801))
-                                  ])
+    let dayForecast = Fakes.dayForecast(forecasts: [
+        ForecastWeather(temperature: ForecastWeather.Temperature(min: 21.14,
+                                                                 max: 23.64,
+                                                                 feelsLike: 22.29,
+                                                                 average: 21),
+                        wind: Wind(speed: 3.88,
+                                   gusts: 6.81,
+                                   direction: 291),
+                        clouds: Clouds(coverage: 54),
+                        rain: nil,
+                        description: WeatherDescription(icon: .clear, description: "clear skys"),
+                        humidity: 9,
+                        pressure: 1003,
+                        time: Date(timeIntervalSince1970: 1666396800)),
+        ForecastWeather(temperature: ForecastWeather.Temperature(min: 12,
+                                                                 max: 21,
+                                                                 feelsLike: 22.29,
+                                                                 average: 24),
+                        wind: Wind(speed: 3.88,
+                                   gusts: 6.81,
+                                   direction: 291),
+                        clouds: Clouds(coverage: 54),
+                        rain: nil,
+                        description: WeatherDescription(icon: .clear, description: "clear skys"),
+                        humidity: 9,
+                        pressure: 1003,
+                        time: Date(timeIntervalSince1970: 1666396801))
+    ])
 
     func testMinTemperature() {
         XCTAssertEqual(dayForecast.minTemperature, 12)

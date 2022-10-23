@@ -98,4 +98,12 @@ class CurrentWeatherCell: UICollectionViewCell, Reusable {
             make.left.equalTo(self.snp.centerX).offset(4)
         }
     }
+
+    func configure(with viewModel: CurrentWeatherCellViewModel) {
+        temperatureLabel.text = viewModel.temperature
+        locationLabel.text = viewModel.location
+        minTemperatureLabel.text = viewModel.minTemperature
+        maxTemperatureLabel.text = viewModel.maxTemperature
+        descriptionLabel.text = viewModel.description
+    }
 }

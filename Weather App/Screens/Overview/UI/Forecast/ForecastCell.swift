@@ -106,4 +106,12 @@ class ForecastCell: UICollectionViewCell, Reusable {
             make.left.equalTo(dateLabel.snp.right)
         }
     }
+
+    func configure(with viewModel: ForecastCellViewModel) {
+        dateLabel.text = viewModel.date
+        minTemperatureLabel.text = viewModel.minTemperature
+        maxTemperatureLabel.text = viewModel.maxTemperature
+        iconImageView.image = viewModel.iconImage
+        rangeView.setRange(start: viewModel.relativeTemperatureRange.start, end: viewModel.relativeTemperatureRange.end)
+    }
 }
