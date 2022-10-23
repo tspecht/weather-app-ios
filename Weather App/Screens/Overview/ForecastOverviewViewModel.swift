@@ -23,7 +23,7 @@ struct ForecastOverview {
 
     enum Item: Hashable {
         case current(CurrentWeather, Float?, Float?)
-        case daily(DayForecast)
+        case daily(DayForecast, Float, Float)
 
         func hash(into hasher: inout Hasher) {
             switch self {
@@ -31,8 +31,10 @@ struct ForecastOverview {
                 hasher.combine(currentWeather.time)
                 hasher.combine(min ?? 0)
                 hasher.combine(max ?? 0)
-            case .daily(let forecast):
+            case .daily(let forecast, let min, let max):
                 hasher.combine(forecast.date)
+                hasher.combine(min)
+                hasher.combine(max)
             }
         }
     }
@@ -75,8 +77,8 @@ class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
             let minTemperature: Float?
             let maxTemperature: Float?
             if let dailyForecasts = dailyForecasts,
-               let todaysForecast = dailyForecasts.filter { Calendar.current.isDateInToday($0.date) }.first {
-                   minTemperature = todaysForecast.minimumTemperature
+               let todaysForecast = dailyForecasts.filter({ Calendar.current.isDateInToday($0.date) }).first {
+                   minTemperature = todaysForecast.minTemperature
                    maxTemperature = todaysForecast.maxTemperature
            } else {
                minTemperature = nil
@@ -89,7 +91,11 @@ class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
 
         if let dailyForecasts = dailyForecasts {
             snapshot.appendSections([.dailyForecast])
-            snapshot.appendItems(dailyForecasts.map { .daily($0) }, toSection: .dailyForecast)
+
+            let maxTemperature = dailyForecasts.compactMap { $0.maxTemperature }.max() ?? 100
+            let minTemperature = dailyForecasts.compactMap { $0.minTemperature }.min() ?? 0
+
+            snapshot.appendItems(dailyForecasts.map { .daily($0, minTemperature, maxTemperature) }, toSection: .dailyForecast)
         }
 
         dataUpdated.send(snapshot)

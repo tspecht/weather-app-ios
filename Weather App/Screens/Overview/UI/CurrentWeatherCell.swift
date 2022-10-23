@@ -78,7 +78,6 @@ class CurrentWeatherCell: UICollectionViewCell, Reusable {
         }
 
         locationLabel.snp.makeConstraints { make in
-            make.bottom.equalTo(temperatureLabel.snp.top).offset(verticalPadding)
             make.left.right.equalTo(self)
         }
 

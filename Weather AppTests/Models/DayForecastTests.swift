@@ -41,7 +41,7 @@ class DayForecastTests: XCTestCase {
                                   ])
 
     func testMinTemperature() {
-        XCTAssertEqual(dayForecast.minimumTemperature, 12)
+        XCTAssertEqual(dayForecast.minTemperature, 12)
     }
 
     func testMaxTemperature() {

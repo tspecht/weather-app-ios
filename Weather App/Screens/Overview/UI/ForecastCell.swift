@@ -42,6 +42,15 @@ class ForecastCell: UICollectionViewCell, Reusable {
         return imageView
     }()
 
+    lazy var rangeView: TemperatureRangeView = {
+        let rangeView = TemperatureRangeView(frame: .zero)
+
+        rangeView.backgroundColor = .black.withAlphaComponent(0.085)
+        rangeView.highlightColor = .white
+
+        return rangeView
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -53,10 +62,13 @@ class ForecastCell: UICollectionViewCell, Reusable {
     }
 
     private func configureViews() {
-        addSubview(maxTemperatureLabel)
-        addSubview(minTemperatureLabel)
-        addSubview(dateLabel)
-        addSubview(iconImageView)
+        addSubviews([
+            maxTemperatureLabel,
+            minTemperatureLabel,
+            dateLabel,
+            iconImageView,
+            rangeView
+        ])
 
         let verticalSpace = 4
         let sideSpace = 8
@@ -65,7 +77,7 @@ class ForecastCell: UICollectionViewCell, Reusable {
             make.top.equalTo(self).offset(verticalSpace)
             make.bottom.equalTo(self).inset(verticalSpace)
             make.left.equalTo(self).offset(sideSpace)
-            make.width.equalTo(self).multipliedBy(0.15)
+            make.width.equalTo(50)
         }
 
         minTemperatureLabel.snp.makeConstraints { make in
@@ -76,7 +88,15 @@ class ForecastCell: UICollectionViewCell, Reusable {
 
         maxTemperatureLabel.snp.makeConstraints { make in
             make.right.equalTo(self).offset(-sideSpace)
+            make.width.equalTo(32)
             make.centerY.equalTo(dateLabel)
+        }
+
+        rangeView.snp.makeConstraints { make in
+            make.left.equalTo(minTemperatureLabel.snp.right).offset(sideSpace)
+            make.right.equalTo(maxTemperatureLabel.snp.left).offset(-sideSpace)
+            make.height.equalTo(6)
+            make.centerY.equalTo(self)
         }
 
         iconImageView.snp.makeConstraints { make in

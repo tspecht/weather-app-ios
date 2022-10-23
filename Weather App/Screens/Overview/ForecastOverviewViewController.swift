@@ -26,7 +26,6 @@ class ForecastOverviewViewController: UIViewController {
                 cell.locationLabel.text = currentWeather.location.name
                 cell.descriptionLabel.text = currentWeather.description.description
 
-                // TODO: This needs to be parsed from the daily forecast
                 if let minTemperature = minTemperature {
                     cell.minTemperatureLabel.text = "L:\(Int(minTemperature))°"
                 }
@@ -36,10 +35,14 @@ class ForecastOverviewViewController: UIViewController {
                 }
 
                 return cell
-            case .daily(let forecast):
+            case .daily(let forecast, let min, let max):
                 let cell: ForecastCell = collectionView.dequeueReusableCell(for: indexPath)
-                cell.maxTemperatureLabel.text = "\(Int(forecast.maxTemperature ?? 0))°"
-                cell.minTemperatureLabel.text = "\(Int(forecast.minimumTemperature ?? 0))°"
+
+                let dayMinTemperature = forecast.minTemperature ?? 0
+                let dayMaxTemperature = forecast.maxTemperature ?? 100
+                cell.maxTemperatureLabel.text = "\(Int(dayMaxTemperature))°"
+                cell.minTemperatureLabel.text = "\(Int(dayMinTemperature))°"
+                cell.rangeView.setRange(start: (dayMinTemperature - min) / max, end: dayMaxTemperature / max)
 
                 cell.iconImageView.image = forecast.middleForecast.description.iconImageAsset.image
 

@@ -14,7 +14,7 @@ struct DayForecast: Equatable {
 
 // MARK: - Computed properties
 extension DayForecast {
-    var minimumTemperature: Float? {
+    var minTemperature: Float? {
         forecasts.map { $0.temperature.min }.min()
     }
 

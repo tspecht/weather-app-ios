@@ -111,7 +111,7 @@ class ForecastOverviewViewControllerTests: XCTestCase {
                             humidity: 9,
                             pressure: 1003,
                             time: Date(timeIntervalSince1970: 1666396800))
-        ]))], toSection: .dailyForecast)
+        ]), 2, 100)], toSection: .dailyForecast)
 
         mockViewModel.dataUpdated.send(snapshot)
 
@@ -132,6 +132,11 @@ class ForecastOverviewViewControllerTests: XCTestCase {
         XCTAssertEqual(forecastCell.maxTemperatureLabel.text, "23°")
         XCTAssertEqual(forecastCell.minTemperatureLabel.text, "21°")
         XCTAssertEqual(forecastCell.iconImageView.image, Asset.clear.image)
-        XCTAssertEqual(forecastCell.dateLabel.text, "Sat")
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EE"
+        XCTAssertEqual(forecastCell.dateLabel.text, dateFormatter.string(from: Date()))
+        XCTAssertEqual(forecastCell.rangeView.start, 0.19139999)
+        XCTAssertEqual(forecastCell.rangeView.end, 0.2364)
     }
 }
