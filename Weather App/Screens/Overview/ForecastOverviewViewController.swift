@@ -15,27 +15,7 @@ class ForecastOverviewViewController: UIViewController {
 
     private let refreshControl = UIRefreshControl()
     internal let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-
-    // TODO: Move this to helper function
-    // lazy var dataSource = configureDataSource()
-
-    private lazy var diffableDataSource: UICollectionViewDiffableDataSource = {
-        let dataSource = UICollectionViewDiffableDataSource<ForecastOverview.Section, ForecastOverview.Item>(collectionView: collectionView) { (collectionView, indexPath, item) -> UICollectionViewCell? in
-            switch item {
-            case .current(let currentWeather, let minTemperature, let maxTemperature):
-                let cell: CurrentWeatherCell = collectionView.dequeueReusableCell(for: indexPath)
-                let cellViewModel = CurrentWeatherCellViewModel(currentWeather: currentWeather, minTemperature: minTemperature, maxTemperature: maxTemperature)
-                cell.configure(with: cellViewModel)
-                return cell
-            case .daily(let forecast, let min, let max):
-                let cell: ForecastCell = collectionView.dequeueReusableCell(for: indexPath)
-                let cellViewModel = ForecastCellViewModel(forecast: forecast, minTemperature: min, maxTemperature: max)
-                cell.configure(with: cellViewModel)
-                return cell
-            }
-        }
-        return dataSource
-    }()
+    private lazy var diffableDataSource = configureDataSource()
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -59,7 +39,6 @@ class ForecastOverviewViewController: UIViewController {
 
         setupBindings()
 
-        // TODO: Figure out if there is a way to have an empty sink
         viewModel.reload()
             .sink()
             .store(in: &cancellables)
@@ -68,6 +47,24 @@ class ForecastOverviewViewController: UIViewController {
 
 // MARK: - Data Bindings
 private extension ForecastOverviewViewController {
+    
+    func configureDataSource() -> UICollectionViewDiffableDataSource<ForecastOverview.Section, ForecastOverview.Item> {
+        UICollectionViewDiffableDataSource(collectionView: collectionView) { (collectionView, indexPath, item) -> UICollectionViewCell? in
+           switch item {
+           case .current(let currentWeather, let minTemperature, let maxTemperature):
+               let cell: CurrentWeatherCell = collectionView.dequeueReusableCell(for: indexPath)
+               let cellViewModel = CurrentWeatherCellViewModel(currentWeather: currentWeather, minTemperature: minTemperature, maxTemperature: maxTemperature)
+               cell.configure(with: cellViewModel)
+               return cell
+           case .daily(let forecast, let min, let max):
+               let cell: ForecastCell = collectionView.dequeueReusableCell(for: indexPath)
+               let cellViewModel = ForecastCellViewModel(forecast: forecast, minTemperature: min, maxTemperature: max)
+               cell.configure(with: cellViewModel)
+               return cell
+           }
+       }
+    }
+    
     func setupBindings() {
         // When the VM has new data, we want to let the DiffableDataSource now
         viewModel.dataUpdated
@@ -140,6 +137,24 @@ extension ForecastOverviewViewController: UICollectionViewDelegateFlowLayout {
             return UIEdgeInsets(top: 32, left: 32, bottom: 8, right: 32)
         default:
             return .zero
+        }
+    }
+}
+
+extension ForecastOverviewViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let item = diffableDataSource.itemIdentifier(for: indexPath) else {
+            return
+        }
+        
+        switch item {
+        case .daily(let selectedForecast, _, _):
+            // TODO: Probably time to put in a coordinator here
+            let viewModel = ForecastDetailViewModelImpl(forecasts: [selectedForecast], initialIndex: 0)
+            let viewController = ForecastDetailViewController(viewModel: viewModel)
+            present(viewController, animated: true)
+        default:
+            break
         }
     }
 }

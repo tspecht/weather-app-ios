@@ -25,5 +25,17 @@ rangeView.layer.cornerRadius = 25/2
 rangeView.layer.masksToBounds = true
 rangeView.setRange(start: 0.1, end: 0.7)
 
+let detailSummaryView = ForecastDetailSummaryView(frame: CGRect(x: 0, y: 0, width: 250, height: 50))
+detailSummaryView.backgroundColor = .black
+detailSummaryView.temperatureLabel.text = "16°"
+detailSummaryView.temperatureRangeLabel.text = "H:10° L:12°"
+detailSummaryView.iconImageView.image = Asset.cloudy.image.withRenderingMode(.alwaysTemplate)
+
+let detailCell = ForecastDetailCell(frame: CGRect(x: 0, y: 0, width: 250, height: 350))
+detailCell.backgroundColor = .red
+detailCell.summaryView.temperatureLabel.text = "16°"
+detailCell.summaryView.temperatureRangeLabel.text = "H:10° L:12°"
+detailCell.summaryView.iconImageView.image = Asset.cloudy.image.withRenderingMode(.alwaysTemplate)
+
 // Present the view controller in the Live View window
-PlaygroundPage.current.liveView = view
+PlaygroundPage.current.liveView = detailCell
