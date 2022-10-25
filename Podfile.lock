@@ -1,24 +1,28 @@
 PODS:
   - Alamofire (5.6.2)
+  - CombineCocoa (0.4.0)
   - SnapKit (5.6.0)
   - SwiftGen (6.6.2)
 
 DEPENDENCIES:
   - Alamofire
+  - CombineCocoa
   - SnapKit
   - SwiftGen
 
 SPEC REPOS:
   trunk:
     - Alamofire
+    - CombineCocoa
     - SnapKit
     - SwiftGen
 
 SPEC CHECKSUMS:
   Alamofire: d368e1ff8a298e6dde360e35a3e68e6c610e7204
+  CombineCocoa: 68a050228ce7c53c1c5ac2c57cccf92a7f5c5085
   SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
   SwiftGen: 1366a7f71aeef49954ca5a63ba4bef6b0f24138c
 
-PODFILE CHECKSUM: 9bb00310a0707795d5a35d4677004ec6a80b0883
+PODFILE CHECKSUM: e761cf6f9bc04fed6cf9bdcc07acdf487d140b96
 
 COCOAPODS: 1.11.3

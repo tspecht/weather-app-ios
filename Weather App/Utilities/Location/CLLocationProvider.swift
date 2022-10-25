@@ -16,10 +16,31 @@ class CLLocationProvider: LocationProvider {
         case noLocality
     }
 
+    private var cancellables = Set<AnyCancellable>()
     private let geoCoder = CLGeocoder()
-    private lazy var locationPublisher: CLLocationManager.LocationPublisher = {
-        CLLocationManager.publishLocation(desiredAccuracy: kCLLocationAccuracyHundredMeters)
-    }()
+    // We need to keep the location manager running internally so we keep updating as the user moves. Only when requested we return the latest value thought
+    private let currentLocationValueSubject = CurrentValueSubject<Location?, Swift.Error>(nil)
+
+    init() {
+        CLLocationManager.publishLocation(desiredAccuracy: kCLLocationAccuracyKilometer)
+            .flatMap { clLocation -> AnyPublisher<(CLPlacemark, CLLocation), Swift.Error> in // TODO: Need a weak self here
+                self.reverseGeocode(location: clLocation)
+                    .map { ($0, clLocation)}
+                    .eraseToAnyPublisher()
+            }
+            .tryMap { (placemark, clLocation) -> Location in
+                guard let locality = placemark.locality else {
+                    throw CLLocationProvider.Error.noLocality
+                }
+                return Location(name: "\(locality)", latitude: Float(clLocation.coordinate.latitude), longitude: Float(clLocation.coordinate.longitude))
+            }
+            .sink(receiveCompletion: { _ in
+
+            }, receiveValue: { [weak self] location in
+                self?.currentLocationValueSubject.send(location)
+            })
+            .store(in: &cancellables)
+    }
 
     private func reverseGeocode(location: CLLocation) -> AnyPublisher<CLPlacemark, Swift.Error> {
         let geoCoder = self.geoCoder
@@ -40,18 +61,8 @@ class CLLocationProvider: LocationProvider {
     }
 
     func location() -> AnyPublisher<Location, Swift.Error> {
-        return locationPublisher
-            .flatMap { clLocation -> AnyPublisher<(CLPlacemark, CLLocation), Swift.Error> in // TODO: Need a weak self here
-                self.reverseGeocode(location: clLocation)
-                    .map { ($0, clLocation)}
-                    .eraseToAnyPublisher()
-            }
-            .tryMap { (placemark, clLocation) in
-                guard let locality = placemark.locality else {
-                    throw CLLocationProvider.Error.noLocality
-                }
-                return Location(name: "\(locality)", latitude: Float(clLocation.coordinate.latitude), longitude: Float(clLocation.coordinate.longitude))
-            }
+        return currentLocationValueSubject
+            .compactMap { $0 }
             .eraseToAnyPublisher()
     }
 }

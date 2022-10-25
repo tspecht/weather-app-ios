@@ -6,12 +6,14 @@
 //
 
 import Combine
+import CombineCocoa
 import SnapKit
 import UIKit
 
 class ForecastOverviewViewController: UIViewController {
     private let viewModel: ForecastOverviewViewModel
 
+    private let refreshControl = UIRefreshControl()
     internal let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
 
     // TODO: Move this to helper function
@@ -59,11 +61,7 @@ class ForecastOverviewViewController: UIViewController {
 
         // TODO: Figure out if there is a way to have an empty sink
         viewModel.reload()
-            .sink { _ in
-
-            } receiveValue: { _ in
-
-            }
+            .sink()
             .store(in: &cancellables)
     }
 }
@@ -71,12 +69,28 @@ class ForecastOverviewViewController: UIViewController {
 // MARK: - Data Bindings
 private extension ForecastOverviewViewController {
     func setupBindings() {
+        // When the VM has new data, we want to let the DiffableDataSource now
         viewModel.dataUpdated
-            .sink { [weak self] _ in
-                // TODO: Handle errors here somehow
-            } receiveValue: { [weak self] snapshot in
+            // TODO: Handle errors here somehow by looking at the completion
+            .sink(receiveValue: { [weak self] snapshot in
                 self?.diffableDataSource.apply(snapshot, animatingDifferences: false)
+            })
+            .store(in: &cancellables)
+
+        // When the user pulled-to-refresh, we want to let the VM now
+        refreshControl.isRefreshingPublisher
+            .filter { $0 }  // Only on true we want to progress
+            .flatMap { [weak self] _ -> AnyPublisher<Bool, Error> in
+                guard let self = self else {
+                    return Fail(error: AppError.noSelf).eraseToAnyPublisher()
+                }
+                return self.viewModel.reload()
             }
+            .sink(receiveCompletion: { _ in
+            }, receiveValue: { [weak self] success in
+                self?.refreshControl.endRefreshing()
+                print("Reloading finished with success? \(success)")
+            })
             .store(in: &cancellables)
     }
 }
@@ -87,16 +101,22 @@ private extension ForecastOverviewViewController {
 
         view.backgroundColor = Asset.lightBlueColor.color
 
+        // Configure the collection view
         collectionView.backgroundColor = .clear
         collectionView.delegate = self
         collectionView.dataSource = diffableDataSource
         collectionView.register(CurrentWeatherCell.self)
         collectionView.register(ForecastCell.self)
 
+        // Size the collection view
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints { make in
             make.edges.equalTo(view)
         }
+
+        // Add the refresh control
+        refreshControl.tintColor = .white
+        collectionView.refreshControl = refreshControl
     }
 }
 

@@ -8,5 +8,5 @@
 import Combine
 
 protocol LocationProvider {
-    func location() -> AnyPublisher<Location,   Swift.Error>
+    func location() -> AnyPublisher<Location, Swift.Error>
 }

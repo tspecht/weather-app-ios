@@ -13,9 +13,9 @@ class StaticLocationProvider: LocationProvider {
         self.staticLocation = location
     }
 
-    func location() -> AnyPublisher<Location,   Swift.Error> {
+    func location() -> AnyPublisher<Location, Swift.Error> {
         return Just(staticLocation)
-            .setFailureType(to: Swift.Error.self)
+            .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
 }
