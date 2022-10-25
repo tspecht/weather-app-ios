@@ -24,3 +24,13 @@ struct ForecastWeather: Equatable {
     let pressure: Int
     let time: Date
 }
+
+extension ForecastWeather: Identifiable {
+    struct ObjectIdentifier: Hashable {
+        let time: Date
+    }
+    
+    var id: ObjectIdentifier {
+        ObjectIdentifier(time: time)
+    }
+}

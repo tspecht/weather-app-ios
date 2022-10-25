@@ -10,5 +10,5 @@ import Foundation
 struct Wind: Equatable {
     let speed: Float
     let gusts: Float?
-    let direction: Int
+    let direction: Int?
 }
