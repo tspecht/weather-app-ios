@@ -58,19 +58,12 @@ class ForecastOverviewViewController: UIViewController {
         setupBindings()
 
         // TODO: Figure out if there is a way to have an empty sink
-        viewModel.loadCurrentWeather()
-            .sink(receiveCompletion: { _ in
+        viewModel.reload()
+            .sink { _ in
 
-            }, receiveValue: { _ in
+            } receiveValue: { _ in
 
-            })
-            .store(in: &cancellables)
-        viewModel.loadDailyForecast()
-            .sink(receiveCompletion: { _ in
-
-            }, receiveValue: { _ in
-
-            })
+            }
             .store(in: &cancellables)
     }
 }

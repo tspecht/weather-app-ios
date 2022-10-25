@@ -10,7 +10,6 @@ import SnapKit
 
 private let kDefaultFontName = "HelveticaNeue-Thin"
 
-// TODO: Does this need it's own view model?
 class CurrentWeatherCell: UICollectionViewCell, Reusable {
     lazy var locationLabel: UILabel = {
         let label = UILabel()

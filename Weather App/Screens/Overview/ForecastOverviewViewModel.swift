@@ -11,9 +11,11 @@ import UIKit
 protocol ForecastOverviewViewModel {
     var dataUpdated: PassthroughSubject<ForecastOverview.Snapshot, DataSourceError> { get }
 
-    init(location: Location, dataSource: DataSource)
-    func loadCurrentWeather() -> AnyPublisher<Bool, DataSourceError>
-    func loadDailyForecast() -> AnyPublisher<Bool, DataSourceError>
+    init(locationProvider: LocationProvider, dataSource: DataSource)
+
+    func reload() -> AnyPublisher<Bool, Swift.Error>
+//    func loadCurrentWeather() -> AnyPublisher<Bool, DataSourceError>
+//    func loadDailyForecast() -> AnyPublisher<Bool, DataSourceError>
 }
 
 // TODO: Probably move to own file as well
@@ -61,10 +63,10 @@ class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
     }
 
     private let dataSource: DataSource
-    private let location: Location
+    private let locationProvider: LocationProvider
 
-    required init(location: Location, dataSource: DataSource) {
-        self.location = location
+    required init(locationProvider: LocationProvider, dataSource: DataSource) {
+        self.locationProvider = locationProvider
         self.dataSource = dataSource
     }
 
@@ -101,9 +103,26 @@ class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
         dataUpdated.send(snapshot)
     }
 
-    // TODO: We probably want to return a bool publisher here and write to currentWeather using handleEvents as a side-effect.
-    // This will require the caller to hold the cancellable though, need to think about if that should be the case
-    func loadCurrentWeather() -> AnyPublisher<Bool, DataSourceError> {
+    func reload() -> AnyPublisher<Bool, Swift.Error> {
+        return locationProvider.location()
+            .compactMap { $0 } // Effectively filter nil
+            .first()
+            .flatMap({ location in
+                Publishers.Zip(self.loadDailyForecast(for: location), self.loadCurrentWeather(for: location))
+                    .map { (dailySuccess, currentSuccess) in
+                        // This makes sure both were successful, but probably not the best. Would be nice to be able to pull these apart on the VX sides
+                        return dailySuccess && currentSuccess
+                    }
+                    .mapError {
+                        $0 as Swift.Error
+                    }
+            })
+            .eraseToAnyPublisher()
+    }
+}
+
+internal extension ForecastOverviewViewModelImpl {
+    func loadCurrentWeather(for location: Location) -> AnyPublisher<Bool, DataSourceError> {
         return dataSource.currentWeather(for: location)
             .handleEvents(receiveOutput: { [weak self] weather in
                 self?.currentWeather = weather
@@ -121,7 +140,7 @@ class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
             .eraseToAnyPublisher()
     }
 
-    func loadDailyForecast() -> AnyPublisher<Bool, DataSourceError> {
+    func loadDailyForecast(for location: Location) -> AnyPublisher<Bool, DataSourceError> {
         dataSource.dailyForecast(for: location)
             .handleEvents(receiveOutput: { [weak self] dailyForecasts in
                 self?.dailyForecasts = dailyForecasts

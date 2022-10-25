@@ -40,7 +40,9 @@ class ViewController: UIViewController {
     }()
 
     private lazy var viewModel: ForecastOverviewViewModel = {
-       return ForecastOverviewViewModelImpl(location: Location(name: "Denver", latitude: 39.7392, longitude: -104.9849), dataSource: dataSource)
+//        let locationProvider = StaticLocationProvider(location: Location(name: "Denver", latitude: 39.7392, longitude: -104.9849))
+        let locationProvider = CLLocationProvider()
+       return ForecastOverviewViewModelImpl(locationProvider: locationProvider, dataSource: dataSource)
     }()
 
     override func viewDidLoad() {

@@ -14,6 +14,7 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
     let session = Alamofire.Session()
     var viewModel: ForecastOverviewViewModelImpl!
     var mockDataSource: MockDataSource!
+    var mockLocationProvider: MockLocationProvider!
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -22,7 +23,8 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
 
         cancellables = Set<AnyCancellable>()
         mockDataSource = MockDataSource(networkClient: MockNetworkClient())
-        viewModel = ForecastOverviewViewModelImpl(location: Fakes.location, dataSource: mockDataSource)
+        mockLocationProvider = MockLocationProvider(fakeLocation: Fakes.location)
+        viewModel = ForecastOverviewViewModelImpl(locationProvider: mockLocationProvider, dataSource: mockDataSource)
     }
 
     override func tearDownWithError() throws {
@@ -32,6 +34,18 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
         mockDataSource = nil
 
         try super.tearDownWithError()
+    }
+
+    func testReload() throws {
+        let fakeLocation = Location(name: "fake location for testReload()", latitude: 12, longitude: 345)
+        mockLocationProvider.fakeLocation = fakeLocation
+
+        let result = try awaitPublisherResult(viewModel.reload())
+        XCTAssertTrue(result)
+
+        // Make sure both data source endpoints were called
+        XCTAssertNotNil(mockDataSource.generatedCurrentWeather[fakeLocation])
+        XCTAssertNotNil(mockDataSource.generatedDailyForecasts[fakeLocation])
     }
 
     func testLoadCurrentWeather() throws {
@@ -46,7 +60,7 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
             }
         )
 
-        let result = try awaitPublisherResult(viewModel.loadCurrentWeather())
+        let result = try awaitPublisherResult(viewModel.loadCurrentWeather(for: Fakes.location))
         XCTAssertTrue(result)
 
         // awaitPublisherResult from above is doing the waiting for us as we used self.expectation. At this point, all we need to do is cancel the subscription to clean up
@@ -71,7 +85,7 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
             }
         )
 
-        let result = try awaitPublisherResult(viewModel.loadDailyForecast())
+        let result = try awaitPublisherResult(viewModel.loadDailyForecast(for: Fakes.location))
         XCTAssertTrue(result)
 
         // awaitPublisherResult from above is doing the waiting for us as we used self.expectation. At this point, all we need to do is cancel the subscription to clean up
@@ -93,7 +107,7 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
             }
         )
 
-        let results = try awaitPublisherResults([viewModel.loadCurrentWeather(), viewModel.loadDailyForecast()])
+        let results = try awaitPublisherResults([viewModel.loadCurrentWeather(for: Fakes.location), viewModel.loadDailyForecast(for: Fakes.location)])
         XCTAssertEqual(results.count, 2)
         XCTAssertTrue(results[0])
         XCTAssertTrue(results[1])

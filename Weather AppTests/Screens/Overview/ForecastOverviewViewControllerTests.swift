@@ -11,40 +11,21 @@ import XCTest
 @testable import Weather_App
 
 class ForecastOverviewViewControllerTests: XCTestCase {
-//    class MockDiffableDataSource<Section: Hashable, Item: Hashable>: UICollectionViewDiffableDataSource<Section, Item> {
-//
-//        var applyCalled = false
-//        var lastAppliedSnapshot: NSDiffableDataSourceSnapshot<Section, Item>
-//
-//        override nonisolated func apply(_ snapshot: NSDiffableDataSourceSnapshot<Section, Item>, animatingDifferences: Bool = true) async {
-//
-//        }
-//    }
-//
     class MockViewModel: ForecastOverviewViewModel {
         var dataUpdated: PassthroughSubject<Weather_App.ForecastOverview.Snapshot, Weather_App.DataSourceError> = PassthroughSubject()
 
-        var calledLoadCurrentWeather = false
-        var calledLoadDailyForecast = false
+        var calledReload = false
 
-        required init(location: Weather_App.Location, dataSource: Weather_App.DataSource) {
+        required init(locationProvider: Weather_App.LocationProvider, dataSource: Weather_App.DataSource) {
 
         }
 
-        func loadCurrentWeather() -> AnyPublisher<Bool, Weather_App.DataSourceError> {
-            calledLoadCurrentWeather = true
+        func reload() -> AnyPublisher<Bool, Error> {
+            calledReload = true
             return Just(true)
-                .setFailureType(to: DataSourceError.self)
+                .setFailureType(to: Error.self)
                 .eraseToAnyPublisher()
         }
-
-        func loadDailyForecast() -> AnyPublisher<Bool, Weather_App.DataSourceError> {
-            calledLoadDailyForecast = true
-            return Just(true)
-                .setFailureType(to: DataSourceError.self)
-                .eraseToAnyPublisher()
-        }
-
     }
 
     let session = Alamofire.Session()
@@ -54,7 +35,7 @@ class ForecastOverviewViewControllerTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
 
-        mockViewModel = MockViewModel(location: Fakes.location, dataSource: MockDataSource(networkClient: MockNetworkClient()))
+        mockViewModel = MockViewModel(locationProvider: StaticLocationProvider(location: Fakes.location), dataSource: MockDataSource(networkClient: MockNetworkClient()))
         viewController = ForecastOverviewViewController(viewModel: mockViewModel)
     }
 
@@ -66,13 +47,11 @@ class ForecastOverviewViewControllerTests: XCTestCase {
     }
 
     func testLoadsDataOnViewDidLoad() {
-        XCTAssertFalse(mockViewModel.calledLoadDailyForecast)
-        XCTAssertFalse(mockViewModel.calledLoadCurrentWeather)
+        XCTAssertFalse(mockViewModel.calledReload)
 
         _ = viewController.view  // To make sure the view gets loaded
 
-        XCTAssertTrue(mockViewModel.calledLoadDailyForecast)
-        XCTAssertTrue(mockViewModel.calledLoadCurrentWeather)
+        XCTAssertTrue(mockViewModel.calledReload)
     }
 
     func testReloadsCollectionViewAfterDataUpdated() throws {
