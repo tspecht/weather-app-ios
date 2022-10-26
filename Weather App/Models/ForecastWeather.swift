@@ -29,7 +29,7 @@ extension ForecastWeather: Identifiable {
     struct ObjectIdentifier: Hashable {
         let time: Date
     }
-    
+
     var id: ObjectIdentifier {
         ObjectIdentifier(time: time)
     }

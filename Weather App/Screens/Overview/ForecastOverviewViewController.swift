@@ -63,7 +63,7 @@ private extension ForecastOverviewViewController {
            }
        }
     }
-    
+
     func setupBindings() {
         // When the VM has new data, we want to let the DiffableDataSource now
         viewModel.dataUpdated
@@ -145,7 +145,7 @@ extension ForecastOverviewViewController: UICollectionViewDelegate {
         guard let item = diffableDataSource.itemIdentifier(for: indexPath) else {
             return
         }
-        
+
         switch item {
         case .daily(let selectedForecast, _, _):
             // TODO: Probably time to put in a coordinator here

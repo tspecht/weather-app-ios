@@ -18,12 +18,12 @@ struct ValuePerCategory {
 // TODO: Name can probably be a bit stronger here
 class ForecastDetailCell: UICollectionViewCell, Reusable {
     lazy var summaryView: ForecastDetailSummaryView = ForecastDetailSummaryView(frame: .zero)
-    
+
     private lazy var chartHostingController: UIHostingController = {
        UIHostingController(rootView: chartView)
     }()
     lazy var chartView: ForecastChartView = {
-        
+
         let viewWModel = ForecastChartViewModel(forecasts: [
             ForecastWeather(temperature: ForecastWeather.Temperature(min: 1, max: 2, feelsLike: 3, average: 4),
                                                                             wind: Wind(speed: 2, gusts: 3, direction: 5),
@@ -60,30 +60,30 @@ class ForecastDetailCell: UICollectionViewCell, Reusable {
 //        view.backgroundColor = .blue
 //        return view
     }()
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+
         backgroundColor = .clear
         configureViews()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func configureViews() {
         addSubviews([
             summaryView,
             chartHostingController.view
         ])
-        
+
         summaryView.snp.makeConstraints { make in
             make.left.top.equalTo(self)
             make.right.equalTo(self)  // TODO: Add the value toggle thingy here to the right
             make.height.equalTo(40)
         }
-        
+
         chartHostingController.view.snp.makeConstraints { make in
             make.left.right.bottom.equalTo(self)
             make.top.equalTo(summaryView.snp.bottom)

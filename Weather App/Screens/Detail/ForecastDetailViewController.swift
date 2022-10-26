@@ -9,25 +9,25 @@ import Combine
 import UIKit
 
 class ForecastDetailViewController: UIViewController {
-    
+
     private let viewModel: ForecastDetailViewModel
     private var cancellables = Set<AnyCancellable>()
-    
+
     internal let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private lazy var diffableDataSource = configureDataSource()
-    
+
     init(viewModel: ForecastDetailViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         configureViews()
         setupBindings()
     }
@@ -35,7 +35,7 @@ class ForecastDetailViewController: UIViewController {
 
 // MARK: - Private
 private extension ForecastDetailViewController {
-    
+
     func setupBindings() {
         // When the VM has new data, we want to let the DiffableDataSource now
         viewModel.dataUpdated
@@ -45,10 +45,10 @@ private extension ForecastDetailViewController {
             })
             .store(in: &cancellables)
     }
-    
+
     func configureViews() {
-        view.backgroundColor = .darkGray
-        
+        view.backgroundColor = Asset.superDarkGray.color
+
         // Configure the collection view
         collectionView.backgroundColor = .clear
         collectionView.delegate = self
@@ -62,7 +62,7 @@ private extension ForecastDetailViewController {
             make.edges.equalTo(view)
         }
     }
-    
+
     func configureDataSource() -> UICollectionViewDiffableDataSource<ForecastDetail.Section, ForecastDetail.Item> {
         UICollectionViewDiffableDataSource(collectionView: collectionView) { (collectionView, indexPath, item) -> UICollectionViewCell? in
            switch item {
@@ -86,15 +86,15 @@ extension ForecastDetailViewController: UICollectionViewDelegateFlowLayout {
         let item = diffableDataSource.itemIdentifier(for: indexPath)
         switch item {
         case .summary:
-            return CGSize(width: collectionView.bounds.size.width - 2 * 8, height: 40)
+            return CGSize(width: collectionView.bounds.size.width - 2 * 8, height: 65)
         case .chart:
-            return CGSize(width: collectionView.bounds.size.width - 2 * 8, height: collectionView.bounds.size.width * 1.25)
+            return CGSize(width: collectionView.bounds.size.width - 2 * 8, height: collectionView.bounds.size.width * 0.8)
         case .none:
             return .zero
         }
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        return UIEdgeInsets(top: 32, left: 8, bottom: 16, right: 8)
     }
 }

@@ -17,7 +17,7 @@ struct ValuePerCategory {
 
 class ForecastDetailChartCellViewModel: ObservableObject {
     let forecast: DayForecast
-    
+
     init(forecast: DayForecast) {
         self.forecast = forecast
     }
@@ -26,7 +26,7 @@ class ForecastDetailChartCellViewModel: ObservableObject {
 // TODO: Name can probably be a bit stronger here
 class ForecastDetailChartCell: UICollectionViewCell, Reusable {
     lazy var summaryView: ForecastDetailSummaryCell = ForecastDetailSummaryCell(frame: .zero)
-    
+
     private lazy var chartHostingController: UIHostingController = {
        let hostingVC = UIHostingController(rootView: chartView)
         hostingVC.view.backgroundColor = .clear
@@ -37,25 +37,25 @@ class ForecastDetailChartCell: UICollectionViewCell, Reusable {
         print("initing view")
         return ForecastChartView()
     }()
-    
+
     private var viewModel: ForecastDetailChartCellViewModel?
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+
         backgroundColor = .clear
         configureViews()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func configureViews() {
         addSubviews([
             chartHostingController.view
         ])
-        
+
         chartHostingController.view.snp.makeConstraints { make in
             make.edges.equalTo(self)
         }
