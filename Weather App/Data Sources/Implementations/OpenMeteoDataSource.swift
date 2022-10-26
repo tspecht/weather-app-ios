@@ -32,7 +32,7 @@ struct OpenMeteoForecastResponse: Codable {
         let pressure: [Float]
         let cloudCover: [Int]
         let windSpeed: [Float]
-        let windDirection: [Int]
+        let windDirection: [Int?]
         let windGusts: [Float]
         let precipitation: [Float]
         let weatherCode: [Int]

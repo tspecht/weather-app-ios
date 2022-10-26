@@ -47,7 +47,6 @@ class ForecastOverviewViewController: UIViewController {
 
 // MARK: - Data Bindings
 private extension ForecastOverviewViewController {
-    
     func configureDataSource() -> UICollectionViewDiffableDataSource<ForecastOverview.Section, ForecastOverview.Item> {
         UICollectionViewDiffableDataSource(collectionView: collectionView) { (collectionView, indexPath, item) -> UICollectionViewCell? in
            switch item {
