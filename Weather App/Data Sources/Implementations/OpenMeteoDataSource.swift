@@ -85,12 +85,6 @@ class OpenMeteoDataSource: DataSource {
         case noSelf
     }
 
-    private lazy var isoCalendar: Calendar = {
-        var calendar = Calendar(identifier: .iso8601)
-        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
-        return calendar
-    }()
-
     private let networkClient: NetworkClient
 
     required init(networkClient: NetworkClient) {
@@ -104,7 +98,7 @@ class OpenMeteoDataSource: DataSource {
     }
 
     private func dailyForecastIncludingCurrent(for location: Location) -> AnyPublisher<([DayForecast], Date), DataSourceError> {
-        guard let url = URL(string: "https://api.open-meteo.com/v1/forecast?latitude=\(location.latitude)&longitude=\(location.longitude)&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,pressure_msl,cloudcover,windspeed_10m,winddirection_10m,windgusts_10m,precipitation,weathercode&current_weather=true&timezone=UTC&timeformat=unixtime") else {
+        guard let url = URL(string: "https://api.open-meteo.com/v1/forecast?latitude=\(location.latitude)&longitude=\(location.longitude)&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,pressure_msl,cloudcover,windspeed_10m,winddirection_10m,windgusts_10m,precipitation,weathercode&current_weather=true&timezone=\(TimeZone.current.identifier)&timeformat=unixtime") else {
             return Fail(error: DataSourceError.networkError(underlyingError: OpenWeatherDataSource.Error.cantConstructRequest)).eraseToAnyPublisher()
         }
         return networkClient
@@ -152,8 +146,8 @@ class OpenMeteoDataSource: DataSource {
                 // Group by date next
                 let groupedByDate: [Date: [ForecastWeather]] = forecastWeathers.reduce([:]) { partialResult, forecastWeather in
                     var partialResult = partialResult
-                    let dateComponents = self.isoCalendar.dateComponents([.day, .month, .year], from: forecastWeather.time)
-                    if let date = self.isoCalendar.date(from: dateComponents) {
+                    var dateComponents = Calendar.current.dateComponents([.day, .month, .year, .timeZone], from: forecastWeather.time)
+                    if let date = Calendar.current.date(from: dateComponents) {
                         partialResult[date, default: []].append(forecastWeather)
                     }
                     return partialResult

@@ -28,6 +28,11 @@ extension DayForecast {
         }
         return middle
     }
+
+    var isToday: Bool {
+        print("DEBUGME", date, Date(), Calendar.autoupdatingCurrent.isDateInToday(date))
+        return Calendar.current.isDateInToday(date)
+    }
 }
 
 // MARK: - Comparable

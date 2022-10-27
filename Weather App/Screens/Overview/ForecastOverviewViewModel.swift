@@ -25,7 +25,7 @@ struct ForecastOverview {
 
     enum Item: Hashable {
         case current(CurrentWeather, Float?, Float?)
-        case daily(DayForecast, Float, Float)
+        case daily(DayForecast, Float, Float, [DayForecast])
 
         func hash(into hasher: inout Hasher) {
             switch self {
@@ -33,10 +33,13 @@ struct ForecastOverview {
                 hasher.combine(currentWeather.time)
                 hasher.combine(min ?? 0)
                 hasher.combine(max ?? 0)
-            case .daily(let forecast, let min, let max):
+            case .daily(let forecast, let min, let max, let allForecasts):
                 hasher.combine(forecast.date)
                 hasher.combine(min)
                 hasher.combine(max)
+                allForecasts.forEach {
+                    hasher.combine($0.date)
+                }
             }
         }
     }
@@ -97,7 +100,7 @@ class ForecastOverviewViewModelImpl: ForecastOverviewViewModel {
             let maxTemperature = dailyForecasts.compactMap { $0.maxTemperature }.max() ?? 100
             let minTemperature = dailyForecasts.compactMap { $0.minTemperature }.min() ?? 0
 
-            snapshot.appendItems(dailyForecasts.map { .daily($0, minTemperature, maxTemperature) }, toSection: .dailyForecast)
+            snapshot.appendItems(dailyForecasts.map { .daily($0, minTemperature, maxTemperature, dailyForecasts) }, toSection: .dailyForecast)
         }
 
         dataUpdated.send(snapshot)

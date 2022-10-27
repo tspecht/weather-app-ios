@@ -142,7 +142,7 @@ struct ForecastChartView: View {
                                     .resizable()
                                     .frame(width: 32, height: 32)
                                     .aspectRatio(contentMode: .fit)
-                                    
+
                                 Text("\(Int(selectedDataPoint.y))°")
                                     .foregroundColor(.white)
                                     .font(.system(size: 32, weight: .bold))
@@ -219,24 +219,24 @@ struct ForecastChartView: View {
                     .font(.system(size: 14, weight: .heavy))
                 }
             })
-            .chartOverlay { proxy in
-                GeometryReader { geo in
-                    Rectangle()
-                        .fill(Color.clear)
-                        .contentShape(Rectangle())
-                        .gesture(DragGesture()
-                            .onChanged { value in
-                                // find start and end positions of the drag
-                                let start = geo[proxy.plotAreaFrame].origin.x
-                                let xCurrent = value.location.x - start
-
-                                viewModel.selectedIndex = Int((xCurrent / proxy.plotAreaSize.width) * CGFloat(viewModel.xValues.count))
-
-                            }.onEnded({ _ in
-                                viewModel.selectedIndex = nil
-                            }))
-                }
-            }
+//            .chartOverlay { proxy in
+//                GeometryReader { geo in
+//                    Rectangle()
+//                        .fill(Color.clear)
+//                        .contentShape(Rectangle())
+//                        .highPriorityGesture(DragGesture()
+//                            .onChanged { value in
+//                                // find start and end positions of the drag
+//                                let start = geo[proxy.plotAreaFrame].origin.x
+//                                let xCurrent = value.location.x - start
+//
+//                                viewModel.selectedIndex = Int((xCurrent / proxy.plotAreaSize.width) * CGFloat(viewModel.xValues.count))
+//
+//                            }.onEnded({ _ in
+//                                viewModel.selectedIndex = nil
+//                            }))
+//                }
+//            }
         }
         .overlay(
             RoundedRectangle(cornerRadius: 8)

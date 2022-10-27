@@ -27,9 +27,9 @@ class ForecastDetailChartCellViewModel: ObservableObject {
 
 // TODO: Name can probably be a bit stronger here
 class ForecastDetailChartCell: UICollectionViewCell, Reusable {
-    
+
     private var cancellables = Set<AnyCancellable>()
-    
+
     lazy var summaryView: ForecastDetailSummaryCell = ForecastDetailSummaryCell(frame: .zero)
 
     private lazy var chartHostingController: UIHostingController = {

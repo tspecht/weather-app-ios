@@ -53,7 +53,7 @@ private extension ForecastDetailViewController {
         collectionView.backgroundColor = .clear
         collectionView.delegate = self
         collectionView.dataSource = diffableDataSource
-        collectionView.register(ForecastDetailChartCell.self)
+        collectionView.register(ForecastDetailChartCollectionCell.self)
         collectionView.register(ForecastDetailSummaryCell.self)
 
         // Size the collection view
@@ -69,23 +69,46 @@ private extension ForecastDetailViewController {
                 return nil
             }
            switch item {
-           case .summary(let dayForecast, let selectedForecastWeather):
+           case .summary(let dayForecast, let selectedForecast):
                let cell: ForecastDetailSummaryCell = collectionView.dequeueReusableCell(for: indexPath)
                let viewModel = ForecastDetailSummaryCellViewModel(
                     dayForecast: dayForecast,
-                    mode: selectedForecastWeather != nil ? .hidden : .today
+                    mode: selectedForecast != nil ? .hidden : (dayForecast.isToday ? .today : .forecast)
                )
                cell.configure(with: viewModel)
                return cell
-           case .chart(let dayForecast):
-               let cell: ForecastDetailChartCell = collectionView.dequeueReusableCell(for: indexPath)
-               let viewModel = ForecastDetailChartCellViewModel(forecast: dayForecast)
-               viewModel.selectedForecastWeather
+           case .charts(let dayForecasts):
+               let cell: ForecastDetailChartCollectionCell = collectionView.dequeueReusableCell(for: indexPath)
+
+               // TODO: We might want to keep this around as a property
+               let cellProvider: ForecastDetailChartCollectionViewModel.DataSource.CellProvider = { [weak self] (collectionView, indexPath, item) -> UICollectionViewCell? in
+                   guard let self = self else {
+                       return nil
+                   }
+                   switch item {
+                   case .chart(let dayForecast):
+                       let cell: ForecastDetailChartCell = collectionView.dequeueReusableCell(for: indexPath)
+                       let viewModel = ForecastDetailChartCellViewModel(forecast: dayForecast)
+                       cell.configure(with: viewModel)
+                       return cell
+                   }
+               }
+
+               let viewModel = ForecastDetailChartCollectionViewModel(forecasts: dayForecasts, initialSelectedIndex: self.viewModel.initialIndex, cellProvider: cellProvider)
+
+               viewModel.selectedForecastChanged
                    .receive(on: DispatchQueue.main)
-                   .sink { [weak self] selectedForecastWeather in
-                       self?.viewModel.select(forecastWeather: selectedForecastWeather)
+                   .compactMap { $0 }
+                   .sink { selectedForecast in
+                       self.viewModel.select(activeForecast: selectedForecast)
                    }
                    .store(in: &self.cancellables)
+//               viewModel.selectedForecastWeather
+//                   .receive(on: DispatchQueue.main)
+//                   .sink { [weak self] selectedForecastWeather in
+//                       self?.viewModel.select(forecastWeather: selectedForecastWeather)
+//                   }
+//                   .store(in: &self.cancellables)
                cell.configure(with: viewModel)
                return cell
            }
@@ -99,15 +122,22 @@ extension ForecastDetailViewController: UICollectionViewDelegateFlowLayout {
         let item = diffableDataSource.itemIdentifier(for: indexPath)
         switch item {
         case .summary:
-            return CGSize(width: collectionView.bounds.size.width - 2 * 8, height: 65)
-        case .chart:
-            return CGSize(width: collectionView.bounds.size.width - 2 * 8, height: collectionView.bounds.size.width * 0.8)
+            return CGSize(width: collectionView.bounds.size.width - 2 * 16, height: 91)
+        case .charts:
+            return CGSize(width: collectionView.bounds.size.width, height: collectionView.bounds.size.width * 0.7)
         case .none:
             return .zero
         }
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 32, left: 8, bottom: 16, right: 8)
+        switch ForecastDetail.Section(rawValue: section) {
+        case .detail:
+            return UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        case .charts:
+            return .zero
+        default:
+            return .zero
+        }
     }
 }

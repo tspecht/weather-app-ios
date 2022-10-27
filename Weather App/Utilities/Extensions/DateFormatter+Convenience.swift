@@ -13,4 +13,9 @@ extension DateFormatter {
         self.dateFormat = format
         self.timeZone = timezone
     }
+
+    convenience init(dateStyle: DateFormatter.Style) {
+        self.init()
+        self.dateStyle = dateStyle
+    }
 }

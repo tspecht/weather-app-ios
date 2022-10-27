@@ -55,7 +55,7 @@ private extension ForecastOverviewViewController {
                let cellViewModel = CurrentWeatherCellViewModel(currentWeather: currentWeather, minTemperature: minTemperature, maxTemperature: maxTemperature)
                cell.configure(with: cellViewModel)
                return cell
-           case .daily(let forecast, let min, let max):
+           case .daily(let forecast, let min, let max, _):
                let cell: ForecastCell = collectionView.dequeueReusableCell(for: indexPath)
                let cellViewModel = ForecastCellViewModel(forecast: forecast, minTemperature: min, maxTemperature: max)
                cell.configure(with: cellViewModel)
@@ -147,9 +147,9 @@ extension ForecastOverviewViewController: UICollectionViewDelegate {
         }
 
         switch item {
-        case .daily(let selectedForecast, _, _):
+        case .daily(let selectedForecast, _, _, let allForecasts):
             // TODO: Probably time to put in a coordinator here
-            let viewModel = ForecastDetailViewModelImpl(forecasts: [selectedForecast], initialIndex: 0)
+            let viewModel = ForecastDetailViewModelImpl(forecasts: allForecasts, initialIndex: allForecasts.firstIndex(of: selectedForecast) ?? 0)
             let viewController = ForecastDetailViewController(viewModel: viewModel)
             present(viewController, animated: true)
         default:
