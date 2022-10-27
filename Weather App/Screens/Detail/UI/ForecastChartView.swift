@@ -31,6 +31,7 @@ struct ForecastChartView: View {
             }
         }
         @Published var chartData: [DataPoint] = []
+        @Published var selectedIndex: Int?
 
         var xValues: [Int] {
             chartData.map { $0.x }
@@ -99,8 +100,6 @@ struct ForecastChartView: View {
 
     @ObservedObject var viewModel = ForecastChartView.ViewModel()
 
-    @State var selectedIndex: Int?
-
     var body: some View {
         let whiteOpaque = Color.white.opacity(0.5)
 
@@ -132,11 +131,13 @@ struct ForecastChartView: View {
                 .foregroundStyle(Color(uiColor: Asset.turqoise.color))
                 .lineStyle(StrokeStyle(lineWidth: 5))
 
-                if let selectedIndex = selectedIndex {
-                    RuleMark(x: .value("Rule", viewModel.xValues[selectedIndex]))
+                if let selectedIndex = viewModel.selectedIndex,
+                   let xValue = viewModel.xValues[safe: selectedIndex],
+                   let yValue = viewModel.yValues[safe: selectedIndex] {
+                    RuleMark(x: .value("Rule", xValue))
                         .foregroundStyle(Color.white.opacity(0.05))
 
-                    PointMark(x: .value("Selected", viewModel.xValues[selectedIndex]), y: .value("Selected", viewModel.yValues[selectedIndex]))
+                    PointMark(x: .value("Selected", xValue), y: .value("Selected", yValue))
                         .foregroundStyle(Color.white)
                 }
 
@@ -216,10 +217,10 @@ struct ForecastChartView: View {
                                 let start = geo[proxy.plotAreaFrame].origin.x
                                 let xCurrent = value.location.x - start
 
-                                selectedIndex = Int((xCurrent / proxy.plotAreaSize.width) * CGFloat(viewModel.xValues.count))
+                                viewModel.selectedIndex = Int((xCurrent / proxy.plotAreaSize.width) * CGFloat(viewModel.xValues.count))
 
                             }.onEnded({ _ in
-                                selectedIndex = nil
+                                viewModel.selectedIndex = nil
                             }))
                 }
             }

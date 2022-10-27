@@ -14,7 +14,7 @@ struct ForecastDetailSummaryCellViewModel {
     let temperatureRange: String
     let iconImage: UIImage
 
-    init(dayForecast: DayForecast) {
+    init(dayForecast: DayForecast, selectedForecastWeather: ForecastWeather?) {
         // TODO: This should be the current temperature maybe if its today?
         self.temperature = "\(Int(dayForecast.middleForecast.temperature.average))°"
         self.temperatureRange = "H:\(Int(dayForecast.maxTemperature ?? 0))° L:\(Int(dayForecast.minTemperature ?? 0))°"

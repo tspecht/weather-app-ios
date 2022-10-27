@@ -12,6 +12,7 @@ import UIKit
 protocol ForecastDetailViewModel {
     var dataUpdated: AnyPublisher<ForecastDetail.Snapshot, Never> { get }
     init(forecasts: [DayForecast], initialIndex: Int)
+    func select(forecastWeather: ForecastWeather?)
 }
 
 // TODO: Move this to a separate file
@@ -19,13 +20,14 @@ struct ForecastDetail {
     typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Item>
 
     enum Item: Hashable {
-        case summary(DayForecast)
+        case summary(DayForecast, ForecastWeather?)
         case chart(DayForecast)
 
         func hash(into hasher: inout Hasher) {
             switch self {
-            case .summary(let dayForecast):
+            case .summary(let dayForecast, let forecastWeather):
                 hasher.combine(dayForecast.date)
+                hasher.combine(forecastWeather?.time)
             case .chart(let dayForecast):
                 hasher.combine(dayForecast.date)
             }
@@ -53,17 +55,26 @@ class ForecastDetailViewModelImpl: ForecastDetailViewModel {
             updateSnapshot()
         }
     }
+    private var selectedForecastWeather: ForecastWeather? {
+        didSet {
+            updateSnapshot()
+        }
+    }
 
     required init(forecasts: [DayForecast], initialIndex: Int) {
         self.forecasts = forecasts
         self.activeForecast = forecasts[initialIndex]
         updateSnapshot()
     }
+    
+    func select(forecastWeather: ForecastWeather?) {
+        selectedForecastWeather = forecastWeather
+    }
 
     private func updateSnapshot() {
         var snapshot = ForecastDetail.Snapshot()
         snapshot.appendSections([.detail])
-        snapshot.appendItems([.summary(activeForecast), .chart(activeForecast)], toSection: .detail)
+        snapshot.appendItems([.summary(activeForecast, selectedForecastWeather), .chart(activeForecast)], toSection: .detail)
         dataUpdatedCurrentValueSubject.send(snapshot)
     }
 }

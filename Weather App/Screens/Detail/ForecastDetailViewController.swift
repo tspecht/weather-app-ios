@@ -64,15 +64,27 @@ private extension ForecastDetailViewController {
     }
 
     func configureDataSource() -> UICollectionViewDiffableDataSource<ForecastDetail.Section, ForecastDetail.Item> {
-        UICollectionViewDiffableDataSource(collectionView: collectionView) { (collectionView, indexPath, item) -> UICollectionViewCell? in
+        UICollectionViewDiffableDataSource(collectionView: collectionView) { [weak self] (collectionView, indexPath, item) -> UICollectionViewCell? in
+            guard let self = self else {
+                return nil
+            }
            switch item {
-           case .summary(let dayForecast):
+           case .summary(let dayForecast, let selectedForecastWeather):
                let cell: ForecastDetailSummaryCell = collectionView.dequeueReusableCell(for: indexPath)
-               cell.configure(with: ForecastDetailSummaryCellViewModel(dayForecast: dayForecast))
+               let viewModel = ForecastDetailSummaryCellViewModel(
+                    dayForecast: dayForecast,
+                    selectedForecastWeather: selectedForecastWeather
+               )
+               cell.configure(with: viewModel)
                return cell
            case .chart(let dayForecast):
                let cell: ForecastDetailChartCell = collectionView.dequeueReusableCell(for: indexPath)
                let viewModel = ForecastDetailChartCellViewModel(forecast: dayForecast)
+               viewModel.selectedForecastWeather
+                   .sink { selectedForecastWeather in
+                       print("Selected forecast \(selectedForecastWeather)")
+                   }
+                   .store(in: &self.cancellables)
                cell.configure(with: viewModel)
                return cell
            }

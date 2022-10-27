@@ -5,7 +5,7 @@
 //  Created by Tim Specht on 10/25/22.
 //
 
-import Charts
+import Combine
 import UIKit
 import SnapKit
 import SwiftUI
@@ -15,8 +15,10 @@ struct ValuePerCategory {
     var value: Double
 }
 
+// TODO: Make a protocol for this if somewhat possible
 class ForecastDetailChartCellViewModel: ObservableObject {
     let forecast: DayForecast
+    let selectedForecastWeather: PassthroughSubject<ForecastWeather?, Never> = PassthroughSubject()
 
     init(forecast: DayForecast) {
         self.forecast = forecast
@@ -25,6 +27,9 @@ class ForecastDetailChartCellViewModel: ObservableObject {
 
 // TODO: Name can probably be a bit stronger here
 class ForecastDetailChartCell: UICollectionViewCell, Reusable {
+    
+    private var cancellables = Set<AnyCancellable>()
+    
     lazy var summaryView: ForecastDetailSummaryCell = ForecastDetailSummaryCell(frame: .zero)
 
     private lazy var chartHostingController: UIHostingController = {
@@ -63,7 +68,21 @@ class ForecastDetailChartCell: UICollectionViewCell, Reusable {
 
     func configure(with viewModel: ForecastDetailChartCellViewModel) {
         self.viewModel = viewModel
-        print("setting now")
         chartView.viewModel.forecast = viewModel.forecast
+        chartView.viewModel.$selectedIndex
+            .handleEvents(receiveCompletion: { result in
+                print("Received completion")
+            }, receiveCancel: {
+                print("Received cancel")
+            })
+            .sink { selectedIndex in
+                guard let selectedIndex = selectedIndex,
+                      let forecastWeather = viewModel.forecast.forecasts[safe: selectedIndex] else {
+                    viewModel.selectedForecastWeather.send(nil)
+                    return
+                }
+                viewModel.selectedForecastWeather.send(forecastWeather)
+            }
+            .store(in: &cancellables)
     }
 }
