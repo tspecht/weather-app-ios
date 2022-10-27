@@ -132,12 +132,25 @@ struct ForecastChartView: View {
                 .lineStyle(StrokeStyle(lineWidth: 5))
 
                 if let selectedIndex = viewModel.selectedIndex,
-                   let xValue = viewModel.xValues[safe: selectedIndex],
-                   let yValue = viewModel.yValues[safe: selectedIndex] {
-                    RuleMark(x: .value("Rule", xValue))
-                        .foregroundStyle(Color.white.opacity(0.05))
+                   let selectedDataPoint = viewModel.chartData[safe: selectedIndex] {
+                    RuleMark(x: .value("Rule", selectedDataPoint.x), yStart: -32)
+                        .foregroundStyle(Color.white)
+                        .lineStyle(StrokeStyle(lineWidth: 1))
+                        .annotation(position: .top) {
+                            HStack {
+                                Image(uiImage: selectedDataPoint.iconImage)
+                                    .resizable()
+                                    .frame(width: 32, height: 32)
+                                    .aspectRatio(contentMode: .fit)
+                                    
+                                Text("\(Int(selectedDataPoint.y))°")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 32, weight: .bold))
+                            }
+                            .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0))
+                        }
 
-                    PointMark(x: .value("Selected", xValue), y: .value("Selected", yValue))
+                    PointMark(x: .value("Selected", selectedDataPoint.x), y: .value("Selected", selectedDataPoint.y))
                         .foregroundStyle(Color.white)
                 }
 
@@ -242,10 +255,10 @@ struct ForecastChartView_Previews: PreviewProvider {
             Asset.rain.image
         ]
         let random = GKRandomSource()
-        let dice3d6 = GKGaussianDistribution(randomSource: random, lowestValue: -2, highestValue: 25)
+        let dice3d6 = GKGaussianDistribution(randomSource: random, lowestValue: 5, highestValue: 25)
 
         viewModel.chartData = (0...24).map {
-            ForecastChartView.DataPoint(x: $0, y: dice3d6.nextUniform(), iconImage: icons.randomElement()!)
+            ForecastChartView.DataPoint(x: $0, y: Float(dice3d6.nextInt()), iconImage: icons.randomElement()!)
         }
         return ZStack {
             Color(Asset.superDarkGray.color).edgesIgnoringSafeArea(.all)

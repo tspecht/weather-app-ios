@@ -73,7 +73,7 @@ private extension ForecastDetailViewController {
                let cell: ForecastDetailSummaryCell = collectionView.dequeueReusableCell(for: indexPath)
                let viewModel = ForecastDetailSummaryCellViewModel(
                     dayForecast: dayForecast,
-                    selectedForecastWeather: selectedForecastWeather
+                    mode: selectedForecastWeather != nil ? .hidden : .today
                )
                cell.configure(with: viewModel)
                return cell
@@ -81,8 +81,9 @@ private extension ForecastDetailViewController {
                let cell: ForecastDetailChartCell = collectionView.dequeueReusableCell(for: indexPath)
                let viewModel = ForecastDetailChartCellViewModel(forecast: dayForecast)
                viewModel.selectedForecastWeather
-                   .sink { selectedForecastWeather in
-                       print("Selected forecast \(selectedForecastWeather)")
+                   .receive(on: DispatchQueue.main)
+                   .sink { [weak self] selectedForecastWeather in
+                       self?.viewModel.select(forecastWeather: selectedForecastWeather)
                    }
                    .store(in: &self.cancellables)
                cell.configure(with: viewModel)

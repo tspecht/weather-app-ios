@@ -38,10 +38,7 @@ class ForecastDetailChartCell: UICollectionViewCell, Reusable {
         return hostingVC
     }()
 
-    lazy var chartView: ForecastChartView = {
-        print("initing view")
-        return ForecastChartView()
-    }()
+    lazy var chartView: ForecastChartView = ForecastChartView()
 
     private var viewModel: ForecastDetailChartCellViewModel?
 
@@ -70,11 +67,6 @@ class ForecastDetailChartCell: UICollectionViewCell, Reusable {
         self.viewModel = viewModel
         chartView.viewModel.forecast = viewModel.forecast
         chartView.viewModel.$selectedIndex
-            .handleEvents(receiveCompletion: { result in
-                print("Received completion")
-            }, receiveCancel: {
-                print("Received cancel")
-            })
             .sink { selectedIndex in
                 guard let selectedIndex = selectedIndex,
                       let forecastWeather = viewModel.forecast.forecasts[safe: selectedIndex] else {

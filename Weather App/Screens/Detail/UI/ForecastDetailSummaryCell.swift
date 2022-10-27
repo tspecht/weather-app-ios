@@ -10,15 +10,22 @@ import SnapKit
 
 // TODO: Consider moving to separate file
 struct ForecastDetailSummaryCellViewModel {
+    
+    enum Mode {
+        case today, forecast, hidden
+    }
+    
     let temperature: String
     let temperatureRange: String
     let iconImage: UIImage
+    let mode: Mode
 
-    init(dayForecast: DayForecast, selectedForecastWeather: ForecastWeather?) {
+    init(dayForecast: DayForecast, mode: Mode) {
         // TODO: This should be the current temperature maybe if its today?
         self.temperature = "\(Int(dayForecast.middleForecast.temperature.average))°"
         self.temperatureRange = "H:\(Int(dayForecast.maxTemperature ?? 0))° L:\(Int(dayForecast.minTemperature ?? 0))°"
         self.iconImage = dayForecast.middleForecast.description.iconImageAsset.image
+        self.mode = mode
     }
 }
 
@@ -85,5 +92,16 @@ class ForecastDetailSummaryCell: UICollectionViewCell, Reusable {
         temperatureLabel.text = viewModel.temperature
         temperatureRangeLabel.text = viewModel.temperatureRange
         iconImageView.image = viewModel.iconImage
+        
+        switch viewModel.mode {
+        case .hidden:
+            temperatureLabel.isHidden = true
+            temperatureRangeLabel.isHidden = true
+            iconImageView.isHidden = true
+        default:
+            temperatureLabel.isHidden = false
+            temperatureRangeLabel.isHidden = false
+            iconImageView.isHidden = false
+        }
     }
 }
