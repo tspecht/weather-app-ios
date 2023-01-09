@@ -31,7 +31,7 @@ class OpenMeteoDataSourceTests: XCTestCase {
     }
 
     func testCurrentWeatherForLocationSuccess() throws {
-        let url = try XCTUnwrap(URL(string: "https://api.open-meteo.com/v1/forecast?latitude=\(Fakes.location.latitude)&longitude=\(Fakes.location.longitude)&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,pressure_msl,cloudcover,windspeed_10m,winddirection_10m,windgusts_10m,precipitation,weathercode&current_weather=true&timezone=UTC&timeformat=unixtime"))
+        let url = try XCTUnwrap(URL(string: "https://api.open-meteo.com/v1/forecast?latitude=\(Fakes.location.latitude)&longitude=\(Fakes.location.longitude)&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,pressure_msl,cloudcover,windspeed_10m,winddirection_10m,windgusts_10m,precipitation,weathercode&current_weather=true&timezone=\(TimeZone.current.identifier)&timeformat=unixtime"))
         mockNetworkClient.register(try! Data(contentsOf: MockedData.dailySuccessJSON), for: url)
 
         let currentWeather = try awaitPublisherResult(dataSource.currentWeather(for: Fakes.location))
@@ -49,7 +49,7 @@ class OpenMeteoDataSourceTests: XCTestCase {
     }
 
     func testForecastForLocationSuccess() throws {
-        let url = try XCTUnwrap(URL(string: "https://api.open-meteo.com/v1/forecast?latitude=\(Fakes.location.latitude)&longitude=\(Fakes.location.longitude)&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,pressure_msl,cloudcover,windspeed_10m,winddirection_10m,windgusts_10m,precipitation,weathercode&current_weather=true&timezone=UTC&timeformat=unixtime"))
+        let url = try XCTUnwrap(URL(string: "https://api.open-meteo.com/v1/forecast?latitude=\(Fakes.location.latitude)&longitude=\(Fakes.location.longitude)&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,pressure_msl,cloudcover,windspeed_10m,winddirection_10m,windgusts_10m,precipitation,weathercode&current_weather=true&timezone=\(TimeZone.current.identifier)&timeformat=unixtime"))
         mockNetworkClient.register(try! Data(contentsOf: MockedData.dailySuccessJSON), for: url)
 
         let forecast = try awaitPublisherResult(dataSource.dailyForecast(for: Fakes.location))

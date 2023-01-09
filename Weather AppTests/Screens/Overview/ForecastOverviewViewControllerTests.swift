@@ -62,7 +62,7 @@ class ForecastOverviewViewControllerTests: XCTestCase {
 
         snapshot.appendSections([.current, .dailyForecast])
         snapshot.appendItems([.current(Fakes.currentWeather, 1.5, 2.2)], toSection: .current)
-        snapshot.appendItems([.daily(Fakes.dayForecast(), 2, 100)], toSection: .dailyForecast)
+        snapshot.appendItems([.daily(Fakes.dayForecast(), 2, 100, [])], toSection: .dailyForecast)
 
         mockViewModel.dataUpdated.send(snapshot)
 

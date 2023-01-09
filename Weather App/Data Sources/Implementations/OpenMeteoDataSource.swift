@@ -106,11 +106,7 @@ class OpenMeteoDataSource: DataSource {
             .mapError { error in
                 return DataSourceError.networkError(underlyingError: error)
             }
-            .tryMap { [weak self] response in
-                guard let self = self else {
-                    throw OpenMeteoDataSource.Error.noSelf
-                }
-
+            .tryMap { response in
                 let hourlyData = response.hourly
                 let forecastWeathers = hourlyData.time.enumerated().compactMap { (index, unixTime) -> ForecastWeather? in
                     guard let temperature = hourlyData.temperature[safe: index],
@@ -146,7 +142,7 @@ class OpenMeteoDataSource: DataSource {
                 // Group by date next
                 let groupedByDate: [Date: [ForecastWeather]] = forecastWeathers.reduce([:]) { partialResult, forecastWeather in
                     var partialResult = partialResult
-                    var dateComponents = Calendar.current.dateComponents([.day, .month, .year, .timeZone], from: forecastWeather.time)
+                    let dateComponents = Calendar.current.dateComponents([.day, .month, .year, .timeZone], from: forecastWeather.time)
                     if let date = Calendar.current.date(from: dateComponents) {
                         partialResult[date, default: []].append(forecastWeather)
                     }

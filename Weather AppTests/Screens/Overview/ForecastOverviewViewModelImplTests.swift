@@ -95,7 +95,7 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
         XCTAssertEqual(snapshot.sectionIdentifiers, [.dailyForecast])
 
         let generatedData = try XCTUnwrap(mockDataSource.generatedDailyForecasts[Fakes.location])
-        XCTAssertEqual(snapshot.itemIdentifiers(inSection: .dailyForecast), generatedData.map { .daily($0, 21.14, 23.64) })
+        XCTAssertEqual(snapshot.itemIdentifiers(inSection: .dailyForecast), generatedData.map { .daily($0, 21.14, 23.64, generatedData) })
     }
 
     func testLoadedBoth() throws {
@@ -122,6 +122,6 @@ class ForecastOverviewViewModelImplTests: XCTestCase {
         XCTAssertEqual(snapshot.itemIdentifiers(inSection: .current), [.current(generatedCurrentWeather, 21.14, 23.64)])
 
         let generatedDailyForecasts = try XCTUnwrap(mockDataSource.generatedDailyForecasts[Fakes.location])
-        XCTAssertEqual(snapshot.itemIdentifiers(inSection: .dailyForecast), generatedDailyForecasts.map { .daily($0, 21.14, 23.64) })
+        XCTAssertEqual(snapshot.itemIdentifiers(inSection: .dailyForecast), generatedDailyForecasts.map { .daily($0, 21.14, 23.64, generatedDailyForecasts) })
     }
 }
